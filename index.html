@@ -17,6 +17,17 @@
 .first-choices{margin-bottom:14px}.level-card{background:#f7f9ff;border-color:#dce5f8}.level-card h2{color:#174d9e}.transport{grid-template-columns:1.15fr 1.3fr .8fr;max-width:720px}.transport button{min-width:0}.model-help{margin:10px auto 0;max-width:610px;text-align:center;font-size:.76rem;line-height:1.45;color:var(--sub)}
 @media(max-width:600px){.transport{grid-template-columns:1fr 1fr}.transport #stop{grid-column:1/-1}.transport button{padding:12px 8px;font-size:.85rem}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.keyboard-panel{border-top:1px solid #dce5f8;margin:16px auto 4px;padding-top:16px;max-width:760px}
+.keyboard-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}.keyboard-heading h3{margin:0;font-size:.94rem;color:#243a61}.keyboard-heading p{margin:4px 0 0;font-size:.76rem;color:var(--sub);line-height:1.45}
+.keyboard-register{display:flex;align-items:center;gap:8px}.keyboard-register button{min-width:38px;min-height:38px;padding:4px 9px}.keyboard-register output{min-width:84px;font-size:.76rem;text-align:center;color:#42536f;font-variant-numeric:tabular-nums}
+.piano-scroll{overflow-x:auto;border:1px solid #b9c3d3;border-radius:9px;background:#29354b;padding:5px;scrollbar-width:thin}
+.piano-keyboard{display:flex;position:relative;min-width:480px;height:142px;isolation:isolate}
+.piano-key{position:relative;display:flex;align-items:flex-end;justify-content:center;border:1px solid #bbc4d1;cursor:pointer;user-select:none;-webkit-user-select:none;padding:0 1px 12px;font:700 11px system-ui;touch-action:pan-x}
+.piano-key.white{flex:1;min-width:0;height:100%;background:linear-gradient(#fff 85%,#e8edf5);color:#42536f;border-radius:0 0 5px 5px;box-shadow:0 3px 0 #adb7c7}
+.piano-key.black{position:absolute;top:0;transform:translateX(-50%);width:4.2%;height:64%;z-index:2;border-color:#142035;border-radius:0 0 4px 4px;background:linear-gradient(#3a4559,#172136);color:#eef3ff;box-shadow:0 3px 0 #0d1728;padding-bottom:10px;font-size:9px}
+.piano-key.active{background:#0a66ff!important;color:#fff!important;box-shadow:inset 0 2px 5px #0003!important}.piano-key:focus-visible{outline-offset:-4px;z-index:3}
+.piano-keyboard.hide-labels .piano-key-label{visibility:hidden}.keyboard-feedback{margin:9px 0 0;min-height:20px;font-size:.8rem;text-align:center;color:#42536f;font-weight:600}.keyboard-feedback.error{color:#ad193d}.keyboard-touch-help{display:none}
+@media(max-width:600px){.keyboard-heading{gap:8px}.keyboard-register{width:100%;justify-content:center}.keyboard-touch-help{display:block;margin:7px 0 0;font-size:.7rem;text-align:center;color:var(--sub)}.piano-keyboard{height:128px}}
 </style>
 </head>
 <body>
@@ -50,6 +61,12 @@
       <div class="transport"><button type="button" class="validate-btn" id="start">▶ Démarrer</button><button type="button" class="ctrl-btn white" id="play-model">♫ Joue-le pour moi</button><button type="button" class="ctrl-btn white" id="stop" disabled>■ Arrêter</button></div>
       <p class="model-help">« Joue-le pour moi » joue aussi la réponse, une pulsation après la note de départ.</p>
       <p id="status" class="status" role="status" aria-live="polite"></p>
+      <section class="keyboard-panel" aria-labelledby="keyboard-title">
+        <div class="keyboard-heading"><div><h3 id="keyboard-title">Clavier de repère</h3><p>Jouez une note pour comparer avec celle que vous chantez.</p></div><div class="keyboard-register"><button type="button" class="ctrl-btn white small" id="keyboard-lower" aria-label="Clavier : une octave plus grave">−</button><output id="keyboard-range" aria-label="Registre du clavier"></output><button type="button" class="ctrl-btn white small" id="keyboard-higher" aria-label="Clavier : une octave plus aiguë">+</button></div></div>
+        <div class="piano-scroll" role="region" aria-label="Clavier piano de deux octaves"><div class="piano-keyboard" id="piano-keyboard" role="group" aria-label="Touches du piano"></div></div>
+        <p class="keyboard-touch-help">Faites défiler le clavier pour atteindre les autres touches.</p>
+        <p id="keyboard-feedback" class="keyboard-feedback" role="status" aria-live="polite">Cliquez ou touchez une touche pour l’écouter.</p>
+      </section>
     </section>
     <fieldset id="register-settings" class="session-settings">
       <legend class="sr-only">Registre de la séance</legend>
@@ -220,6 +237,7 @@ class SingingAudio {
       };
       src.start(at); src.stop(end + 0.03);
     }
+    return item;
   }
   wave(midi) {
     const bucket = Math.min(5, Math.max(0, Math.floor((midi - 36) / 12)));
@@ -261,7 +279,7 @@ class SingingAudio {
       gain.gain.setValueAtTime(0, at); gain.gain.linearRampToValueAtTime(peak, at + 0.01);
       gain.gain.setTargetAtTime(peak * sustain, at + 0.01, decay / 3);
     }
-    this.track(sources, nodes, release, at, end);
+    return this.track(sources, nodes, release, at, end);
   }
   click(at, sound = 'dry') {
     const c = this.ctx;
@@ -306,17 +324,19 @@ class SingingAudio {
     src.buffer = this.clickBuffers[sound]; src.connect(g); g.connect(this.clickBus);
     this.track([src], [src, g], g, at, at + src.buffer.duration);
   }
-  stop() {
-    if (!this.ctx) return;
+  stopVoice(item) {
+    if (!this.ctx || !item || !this.live.has(item) || item.released) return;
+    item.released = true;
     const now = this.ctx.currentTime;
-    for (const item of this.live) {
-      try {
-        item.output.gain.cancelScheduledValues(now);
-        item.output.gain.setValueAtTime(item.at > now ? 0 : item.output.gain.value, now);
-        item.output.gain.linearRampToValueAtTime(0, now + 0.02);
-        for (const src of item.sources) src.stop(item.at > now ? now : now + 0.025);
-      } catch (_) {}
-    }
+    try {
+      item.output.gain.cancelScheduledValues(now);
+      item.output.gain.setValueAtTime(item.at > now ? 0 : item.output.gain.value, now);
+      item.output.gain.linearRampToValueAtTime(0, now + 0.02);
+      for (const src of item.sources) src.stop(item.at > now ? now : now + 0.025);
+    } catch (_) {}
+  }
+  stop() {
+    for (const item of this.live) this.stopVoice(item);
   }
 }
 </script>
@@ -330,9 +350,51 @@ class SingingAudio {
   let sequence, clock, events = [], displayed = null, sampleWarning = '';
   let previewToken = 0;
   let playMode = 'sing';
+  let keyboardBase = Math.max(24, Math.min(84, Math.floor(Math.min(cfg.low, cfg.low + cfg.interval * cfg.direction) / 12) * 12));
+  let keyboardToken = 0, keyboardVoice = null, keyboardTimer = null, keyboardLastMidi = null;
   const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(cfg)); } catch (_) {} };
   function status(text, error = false) { $('status').textContent = text; $('status').classList.toggle('error', error); }
   function option(value, text) { const o = document.createElement('option'); o.value = value; o.textContent = text; return o; }
+  function keyboardFeedback(text, error = false) {
+    $('keyboard-feedback').textContent = text; $('keyboard-feedback').classList.toggle('error', error);
+  }
+  function clearKeyboard() {
+    keyboardToken++; clearTimeout(keyboardTimer); keyboardTimer = null;
+    audio.stopVoice(keyboardVoice); keyboardVoice = null;
+    $('piano-keyboard').querySelectorAll('.active').forEach(key => key.classList.remove('active'));
+  }
+  function renderKeyboard() {
+    clearKeyboard(); keyboardLastMidi = null;
+    const root = $('piano-keyboard'); root.replaceChildren();
+    root.classList.toggle('hide-labels', !cfg.showNote);
+    let whites = 0;
+    for (let midi = keyboardBase; midi <= keyboardBase + 24; midi++) {
+      const black = [1, 3, 6, 8, 10].includes(midi % 12), key = document.createElement('button');
+      key.type = 'button'; key.className = `piano-key ${black ? 'black' : 'white'}`;
+      key.dataset.midi = midi; key.setAttribute('aria-label', `Jouer ${C.name(midi, true)} / ${C.name(midi)}`);
+      if (black) key.style.left = `${whites / 15 * 100}%`; else whites++;
+      const label = document.createElement('span'); label.className = 'piano-key-label'; label.textContent = C.name(midi, true); key.append(label);
+      key.addEventListener('click', () => playKeyboardNote(midi, key)); root.append(key);
+    }
+    $('keyboard-range').textContent = `${C.name(keyboardBase, true)} – ${C.name(keyboardBase + 24, true)}`;
+    $('keyboard-lower').disabled = keyboardBase === 24; $('keyboard-higher').disabled = keyboardBase === 84;
+    keyboardFeedback('Cliquez ou touchez une touche pour l’écouter.');
+  }
+  async function playKeyboardNote(midi, key) {
+    clearKeyboard(); const id = keyboardToken;
+    try {
+      await audio.init();
+      if (id !== keyboardToken || document.hidden || !key.isConnected) return;
+      audio.volumes(cfg.pianoVolume, cfg.clickVolume);
+      if (!cfg.pianoVolume) { keyboardFeedback('Le volume du piano est à zéro. Montez-le pour entendre le clavier.'); return; }
+      // Play immediately; the existing piano synth covers samples still loading.
+      if (cfg.backend === 'samples' && !audio.loading) void audio.load(() => {}).catch(() => {});
+      keyboardVoice = audio.note(midi, audio.ctx.currentTime + 0.01, 1.4, cfg.backend);
+      keyboardLastMidi = midi; key.classList.add('active');
+      keyboardFeedback(cfg.showNote ? `${C.name(midi, true)} / ${C.name(midi)}` : 'Note jouée au clavier.');
+      keyboardTimer = setTimeout(() => { if (id === keyboardToken) key.classList.remove('active'); }, 1400);
+    } catch (err) { if (id === keyboardToken) keyboardFeedback(err.message || 'Impossible de jouer cette note.', true); }
+  }
   C.INTERVALS.forEach(([n, label]) => $('interval').append(option(n, label)));
   Object.entries(C.CLICK_SOUNDS).forEach(([id, label]) => $('click-sound').append(option(id, label)));
   Object.entries(C.DIFFICULTIES).forEach(([id, d]) => $('difficulty').append(option(id, d.label)));
@@ -432,7 +494,7 @@ class SingingAudio {
     if (preparing || C.validate(cfg) || (running && playMode === mode)) return;
     if (running) stop();
     playMode = mode;
-    previewToken++; audio.stop();
+    previewToken++; clearKeyboard(); audio.stop();
     const id = ++token; preparing = true; sampleWarning = '';
     $('start').disabled = true; $('play-model').disabled = true; $('stop').disabled = false;
     modeLabels(); $(mode === 'model' ? 'play-model' : 'start').textContent = 'Préparation…';
@@ -459,7 +521,7 @@ class SingingAudio {
     token++; previewToken++; running = false; preparing = false;
     playMode = 'sing';
     clearInterval(timer); cancelAnimationFrame(raf); timer = null; raf = null; events = []; displayed = null;
-    audio.stop();
+    clearKeyboard(); audio.stop();
     if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
     $('beat-piano').classList.remove('active'); $('beat-sing').classList.remove('active');
     $('current-note').classList.remove('singing'); $('current-note').textContent = '—';
@@ -473,7 +535,7 @@ class SingingAudio {
     try {
       await audio.init();
       if (id !== previewToken || running || preparing || document.hidden) return;
-      audio.stop(); audio.volumes(cfg.pianoVolume, cfg.clickVolume);
+      clearKeyboard(); audio.stop(); audio.volumes(cfg.pianoVolume, cfg.clickVolume);
       if (cfg.clickVolume === 0) { status('Le volume du métronome est à zéro. Montez-le pour écouter le clic.'); return; }
       const at = audio.ctx.currentTime + 0.05;
       for (let i = 0; i < 3; i++) audio.click(at + i * 0.5, cfg.clickSound);
@@ -495,14 +557,20 @@ class SingingAudio {
   });
   $('preview-click').addEventListener('click', previewClick);
   for (const [id, key] of [['piano-volume', 'pianoVolume'], ['click-volume', 'clickVolume']]) $(id).addEventListener('input', e => { cfg[key] = Number(e.target.value) / 100; renderVolumes(); save(); });
-  $('show-note').addEventListener('change', e => { cfg.showNote = e.target.checked; save(); if (displayed) visual(displayed); });
+  $('show-note').addEventListener('change', e => {
+    cfg.showNote = e.target.checked; save(); if (displayed) visual(displayed);
+    $('piano-keyboard').classList.toggle('hide-labels', !cfg.showNote);
+    if (keyboardLastMidi !== null) keyboardFeedback(cfg.showNote ? `${C.name(keyboardLastMidi, true)} / ${C.name(keyboardLastMidi)}` : 'Note jouée au clavier.');
+  });
+  $('keyboard-lower').addEventListener('click', () => { keyboardBase = Math.max(24, keyboardBase - 12); renderKeyboard(); });
+  $('keyboard-higher').addEventListener('click', () => { keyboardBase = Math.min(84, keyboardBase + 12); renderKeyboard(); });
   $('start').addEventListener('click', () => start('sing'));
   $('play-model').addEventListener('click', () => start('model'));
   $('stop').addEventListener('click', () => stop());
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (running || preparing) { e.preventDefault(); stop(); }
-      else { previewToken++; audio.stop(); }
+      else { previewToken++; clearKeyboard(); audio.stop(); }
     }
     if (e.code !== 'Space' || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.target.closest('input,select,button,summary,textarea,[contenteditable]')) return;
@@ -511,10 +579,10 @@ class SingingAudio {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) return;
     if (running || preparing) stop('Séance arrêtée au changement d’onglet. Relancez-la pour reprendre le décompte.');
-    else { previewToken++; audio.stop(); }
+    else { previewToken++; clearKeyboard(); audio.stop(); }
   });
-  window.addEventListener('pagehide', () => { if (running || preparing) stop(); else { previewToken++; audio.stop(); } });
-  renderConfig(); save();
+  window.addEventListener('pagehide', () => { if (running || preparing) stop(); else { previewToken++; clearKeyboard(); audio.stop(); } });
+  renderConfig(); renderKeyboard(); save();
 })();
 </script>
 </body>
