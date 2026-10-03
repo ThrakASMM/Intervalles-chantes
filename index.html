@@ -191,6 +191,9 @@
 class SingingAudio {
   constructor() { this.ctx = null; this.buffers = {}; this.waves = {}; this.live = new Set(); this.loading = null; this.clickBuffers = {}; }
   async init() {
+    // Musical playback should use the media volume, not the iPhone ringer.
+    // Set this during the user's play gesture; older browsers keep their default.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
     if (!this.ctx) {
       const Context = window.AudioContext || window.webkitAudioContext;
       if (!Context) throw new Error('Ce navigateur ne permet pas de jouer les sons. Essayez Safari, Chrome ou Firefox.');
