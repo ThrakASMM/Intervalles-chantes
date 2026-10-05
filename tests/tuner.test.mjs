@@ -33,10 +33,10 @@ test('silence, quiet input, noise and a click do not turn the tuner green',()=>{
  const click=signal(1750,48000);for(let i=0;i<click.length;i++)click[i]*=Math.exp(-i/(48000*.0024));
  assert.equal(detector.detect(click,48000),null);
 });
-test('cents follow the expected interval and keep octave errors instead of wrapping to the nearest note',()=>{
+test('cents follow the expected pitch class and accept every octave',()=>{
  assert.equal(Pitch.cents(440,69),0);
- assert(Math.abs(Pitch.cents(880,69)-1200)<1e-8);
- assert(Math.abs(Pitch.cents(220,69)+1200)<1e-8);
+ assert(Math.abs(Pitch.cents(880,69))<1e-8);
+ assert(Math.abs(Pitch.cents(220,69))<1e-8);
  for(const offset of [-120,-35,-8,8,35,120])assert(Math.abs(Pitch.cents(hz(64)*2**(offset/1200),64)-offset)<1e-7);
 });
 test('measures only the response beat, after the click, for ascending/descending intervals',()=>{
@@ -105,7 +105,7 @@ test('microphone is opt-in, never monitored to speakers; accurate, flat, sharp a
  assert.equal(requests,0);assert.equal(h.audio.microphoneActive,false);
  await h.tuner.enable();assert.equal(requests,1);assert.equal(h.audio.microphoneActive,true);assert.equal(h.connections.length,1);assert.equal(h.connections[0],h.analyser);assert.equal(h.timers.size,1);
  h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');assert.equal(h.element('tuner-panel').dataset.side,'center');assert.equal(h.element('tuner-panel').dataset.step,'0');
- for(const [offset,direction] of [[-150,'Trop grave'],[150,'Trop aigu'],[1200,'Trop aigu']]){
+ for(const [offset,direction] of [[-150,'Trop grave'],[150,'Trop aigu'],[500,'Trop aigu']]){
   h.setSignal(signal(440*2**(offset/1200),48000));for(let frame=0;frame<7;frame++){h.audio.ctx.currentTime+=.05;h.tuner.tick();}
   assert.equal(h.element('tuner-verdict').textContent,direction);assert.equal(h.element('tuner-panel').dataset.pitch,'far');assert.equal(h.element('tuner-panel').dataset.side,offset<0?'flat':'sharp');
  }

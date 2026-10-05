@@ -43,6 +43,9 @@
 @media(prefers-reduced-motion:reduce){.tuner-led-column i{transition:none}}
 @media(max-width:600px){.tuner-panel{padding:12px 10px 10px}.tuner-heading{gap:6px}.tuner-heading h3{font-size:.87rem}.tuner-heading button{font-size:.77rem;padding:6px 9px}.tuner-help{font-size:.65rem}}
 
+
+.test-launch{margin:0 0 14px;background:#f2f6ff;border-color:#c8d9fa}.test-launch-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.test-launch h2{margin:0 0 5px}.test-launch p{margin:0}.test-launch button{min-height:46px}.test-progress{text-align:center;font-size:.85rem;font-weight:750;color:#0756d6;min-height:1.3em;margin:6px 0 12px}
+.test-result{margin:16px 0}.test-result[hidden]{display:none}.test-result h2{font-size:1.1rem}.test-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.test-metrics div{border-radius:9px;background:#f3f6fb;padding:12px}.test-metrics small{display:block;color:#586780;margin-bottom:5px}.test-metrics strong{font-size:1.15rem}.test-metrics div:first-child strong{font-size:1.65rem;color:#0756d6}.test-details{font-size:.82rem;line-height:1.8}.test-save-form{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:16px}.test-save-form label{flex:1;min-width:140px}.test-save-form input{display:block;width:100%;padding:10px;margin-top:5px;border:1px solid #bcc8dc;border-radius:7px}.test-save-form button{min-height:44px}.test-save-note{font-size:.74rem;color:#5d6880;line-height:1.5}.test-top{margin:16px 0}.test-top-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.test-top-filters label{flex:1;min-width:130px}.test-top-filters select{display:block;width:100%;padding:9px;margin-top:5px}.test-top-list{list-style:none;padding:0;margin:12px 0}.test-top-list li{display:grid;grid-template-columns:26px 1fr auto;gap:8px;padding:12px 0;border-top:1px solid #e0e6ef;align-items:center}.test-top-list li>b{color:#8491a5}.test-top-list li>small{grid-column:2/-1;color:#61718a;line-height:1.5}.test-top-list .top-empty{display:block;color:#61718a}.test-launch details{margin-top:12px;font-size:.8rem;line-height:1.5}.test-launch details p{margin:8px 0}button:disabled{cursor:default;opacity:.5}
 </style>
 </head>
 <body>
@@ -65,6 +68,10 @@
       <div class="tempo-row"><button class="ctrl-btn white small" id="tempo-less" aria-label="Ralentir de 5 pulsations par minute">−5</button><label class="sr-only" for="tempo">Tempo</label><input id="tempo" type="range" min="30" max="200" step="1" value="80"><button class="ctrl-btn white small" id="tempo-more" aria-label="Accélérer de 5 pulsations par minute">+5</button></div>
       <p class="dim small tempo-help">Modifiable pendant l’exercice · une nouvelle note toutes les <strong id="note-rate">1,5 s</strong></p>
     </section>
+    <section class="card test-launch" aria-labelledby="test-title">
+      <div class="test-launch-heading"><div><h2 id="test-title">Test de 20 notes</h2><p class="small dim">L’intervalle, le sens, le niveau et le tempo choisis ci-dessus · octave libre.</p></div><button type="button" class="validate-btn" id="test-start">🏆 Lancer le test</button></div>
+      <details><summary>Comment est calculé le score ?</summary><p>La justesse moyenne rapporte jusqu’à 10 000 points. La zone juste est de ±30 cents (environ un tiers de demi-ton). Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
+    </section>
     <section class="exercise" aria-label="Exercice au métronome">
       <div class="exercise-top"><span class="badge" id="run-state">PRÊT À JOUER</span><span class="counter" id="counter">0 note de départ</span></div>
       <div class="instruction"><span class="dim">Votre intervalle</span><h2 id="instruction">3ce majeure <span>↑</span></h2><p id="direction-text">Au-dessus de chaque note jouée</p></div>
@@ -73,6 +80,7 @@
         <div class="beat sing" id="beat-sing"><span class="beat-number">2</span><span><strong id="second-beat-title">À vous</strong><small id="second-beat-help">Chantez l’intervalle</small></span><span class="dot"></span></div>
       </div>
       <div class="current"><p id="phase-label">Décompte de 4 pulsations au démarrage</p><div class="current-note" id="current-note">—</div><p id="note-detail">Puis piano / chant, en continu.</p></div>
+      <p class="test-progress" id="test-progress" aria-live="polite"></p>
       <section class="tuner-panel" id="tuner-panel" aria-labelledby="tuner-title" data-pitch="waiting" data-side="none" data-step="none">
         <div class="tuner-heading"><div><h3 id="tuner-title">Accordeur vocal</h3><span class="tuner-mic-state" id="tuner-mic-state">MICRO COUPÉ</span></div><button type="button" class="ctrl-btn white small" id="tuner-toggle" aria-pressed="false">Activer le micro</button></div>
         <p class="tuner-target" id="tuner-target">Gauche : trop grave · Centre : juste · Droite : trop aigu.</p>
@@ -104,6 +112,14 @@
         <p id="keyboard-feedback" class="keyboard-feedback" role="status" aria-live="polite">Cliquez ou touchez une touche pour l’écouter.</p>
       </section>
     </section>
+    <section class="card test-result" id="test-result" hidden aria-labelledby="test-result-title">
+      <h2 id="test-result-title">Résultat du test</h2>
+      <div class="test-metrics"><div><small>Score total</small><strong id="test-score"></strong></div><div><small>Justesse sur les 20 notes</small><strong id="test-grade"></strong></div><div><small>Écart moyen des notes entendues</small><strong id="test-precision"></strong></div><div><small>Vitesse des réponses justes</small><strong id="test-speed"></strong></div></div>
+      <p class="small" id="test-breakdown"></p><details class="test-details"><summary>Voir les 20 notes</summary><ol id="test-note-results" style="list-style:none;padding-left:0"></ol></details>
+      <div class="test-save-form"><label for="test-name">Pseudo<input id="test-name" maxlength="16" autocomplete="nickname" placeholder="Ton pseudo"></label><button type="button" class="validate-btn" id="test-save">Enregistrer mon score en ligne</button></div>
+      <p class="test-save-note">Un seul pseudo par profil, une seule place par Top : ton meilleur score. Le pseudo est fixé au premier enregistrement. Ton pseudo et tes résultats seront publics ; aucun son de ta voix n’est enregistré ni envoyé.</p>
+      <p class="small" id="test-save-status" role="status"></p>
+    </section>
     <fieldset id="register-settings" class="session-settings">
       <legend class="sr-only">Registre de la séance</legend>
         <section class="card register-card"><h2>Registre du piano</h2><div class="range-selects"><label for="low">Note la plus grave<select id="low"></select></label><span class="range-arrow" aria-hidden="true">→</span><label for="high">Note la plus aiguë<select id="high"></select></label></div><p class="dim small" id="vocal-range"></p><p class="dim tiny">Repère d’octave identique à Ear Training : Do3 / C3 = do central.</p></section>
@@ -117,6 +133,7 @@
       <p class="dim small click-help">Changez le son même pendant l’exercice. À l’arrêt, « Écouter » joue trois clics.</p>
       <label class="display-option"><input id="show-note" type="checkbox" checked> Afficher le nom des notes</label>
     </section>
+    <section class="card test-top" aria-labelledby="test-top-title"><h2 id="test-top-title">Top 5 — Intervalles chantés</h2><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label><button type="button" class="ctrl-btn white" id="top-refresh">Actualiser</button></div><p class="small dim" id="top-status" role="status"></p><ol class="test-top-list" id="top-list"></ol><p class="test-save-note">Un Top par intervalle et par sens. Chaque pseudo conserve sa meilleure tentative, sans remise à zéro hebdomadaire.</p></section>
     <details class="help"><summary>Comment travailler ?</summary><p>Choisissez le niveau, l’intervalle et le tempo, puis adaptez le registre à votre voix. Après quatre clics, écoutez la note du piano sur la première pulsation. Sur la suivante, chantez l’intervalle demandé à partir de cette note. Recommencez avec chaque nouvelle note.</p><p>Le niveau modifie l’écart entre deux notes de piano successives. L’intervalle à chanter reste fixe. Au niveau 3, un registre large donne davantage de variété.</p><p>« Joue-le pour moi » lance le modèle en continu : note de départ, puis réponse au piano sur le clic suivant. « À moi de chanter » revient à l’exercice. Chaque changement recommence avec quatre clics ; « Arrêter » termine la séance.</p><p>Le métronome continue pendant le chant. En mode chant, la réponse reste silencieuse. Votre voix n’est pas enregistrée. Les préférences sont conservées sur cet appareil lorsque le navigateur le permet.</p><p>Raccourcis hors des réglages : <kbd>Espace</kbd> démarrer / arrêter · <kbd>Échap</kbd> arrêter. Gardez cette page au premier plan pendant la séance.</p></details>
   </main>
   <footer class="app-footer">© 2026 — Guillaume Estace / American School of Modern Music</footer>
@@ -379,11 +396,161 @@ class SingingAudio {
   }
 }
 </script>
-  <script>
+  <!-- BEGIN test-score -->
+<script>
+/* Shared scoring rules: browser and server use this exact module. No audio is uploaded. */
+const SingingScore = (() => {
+  const ID = 'singing-20-v1', TOTAL = 20;
+  const gaps = {close:[1,4],medium:[5,9],wide:[10,24],free:[1,60]};
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const octaveCents = value => ((value + 600) % 1200 + 1200) % 1200 - 600;
+  function config(raw) {
+    if (!raw || !Number.isInteger(raw.interval) || raw.interval<1 || raw.interval>12 || ![1,-1].includes(raw.direction) ||
+      !Number.isInteger(raw.tempo) || raw.tempo<30 || raw.tempo>200 || !Object.hasOwn(gaps,raw.difficulty) ||
+      !Number.isInteger(raw.low) || !Number.isInteger(raw.high) || raw.low<36 || raw.high>96 || raw.low>=raw.high || raw.high-raw.low<gaps[raw.difficulty][0]) throw new Error('Réglages du test invalides.');
+    return {interval:raw.interval,direction:raw.direction,tempo:raw.tempo,difficulty:raw.difficulty,low:raw.low,high:raw.high};
+  }
+  function noteResult(note, cfg, previous) {
+    const duration=60000/cfg.tempo, frames=note.samples;
+    if (!Number.isInteger(note.midi) || note.midi<cfg.low || note.midi>cfg.high || !Array.isArray(frames) || frames.length>Math.ceil(duration/35)) throw new Error('Mesures du test invalides.');
+    if (previous!==null) {const gap=Math.abs(note.midi-previous);if(gap<gaps[cfg.difficulty][0] || gap>gaps[cfg.difficulty][1])throw new Error('Écarts du test invalides.');}
+    let previousTime=-100, sum=0, stable=[], found=null;
+    for (const frame of frames) {
+      if (!frame || !Number.isInteger(frame.t) || frame.t<120 || frame.t>=duration || frame.t-previousTime<35 ||
+        !Number.isFinite(frame.c) || Math.abs(frame.c)>600) throw new Error('Mesures du test invalides.');
+      sum+=Math.abs(frame.c);
+      if (Math.abs(frame.c)<=30) {
+        if (frame.t-previousTime>85) stable=[];
+        stable.push(frame.t);
+        if (found===null && stable.length>=3 && frame.t-stable[0]>=90) found=stable[0];
+      } else stable=[];
+      previousTime=frame.t;
+    }
+    const meanCents=frames.length?sum/frames.length:null;
+    const coverage=Math.min(1,frames.length/3);
+    const quality=meanCents===null?0:clamp((100-meanCents)/70,0,1)*coverage;
+    // Speed starts at the piano note, including the listening beat. It only
+    // earns a bonus for a stable correct response, never for singing early/wrong.
+    const seconds=found===null?null:(duration+found)/1000;
+    const speed=seconds===null?0:clamp((2.5-seconds)/2.1,0,1);
+    // Octaves are free: an octave-only change must not earn a difficulty bonus.
+    const rawGap=previous===null?0:Math.abs(note.midi-previous)%12;
+    const effectiveGap=Math.min(rawGap,12-rawGap);
+    return {midi:note.midi,meanCents,quality,seconds,effectiveGap,
+      accuracyPoints:quality*500,speedPoints:quality*speed*100,gapPoints:quality*effectiveGap/6*(1000/19)};
+  }
+  function evaluate(rawConfig, notes) {
+    const cfg=config(rawConfig);
+    if (!Array.isArray(notes) || notes.length!==TOTAL) throw new Error('Le test doit comporter 20 notes terminées.');
+    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null));
+    const sum=key=>results.reduce((n,r)=>n+(r[key]||0),0);
+    const accuracy=Math.round(sum('accuracyPoints')),speed=Math.round(sum('speedPoints')),gaps=Math.round(sum('gapPoints'));
+    const voiced=results.filter(n=>n.meanCents!==null),timed=results.filter(n=>n.seconds!==null);
+    return {score:accuracy+speed+gaps,accuracy,speed,gaps,grade:Math.round(sum('quality')*10)/10,
+      meanCents:voiced.length?Math.round(voiced.reduce((s,n)=>s+n.meanCents,0)/voiced.length*10)/10:null,
+      averageSeconds:timed.length?Math.round(timed.reduce((s,n)=>s+n.seconds,0)/timed.length*100)/100:null,
+      correct:results.filter(n=>n.quality===1).length,heard:voiced.length,total:TOTAL,results};
+  }
+  class Capture {
+    constructor(cfg) {this.cfg=config(cfg);this.notes=[];this.endAt=null;}
+    register(event) {if(event.phase==='piano' && event.pairs<=TOTAL)this.notes[event.pairs-1]={midi:event.midi,samples:[]};}
+    sample(event,cents,now) {
+      const note=this.notes[event?.pairs-1];if(!note || event.phase!=='sing')return;
+      const t=Math.round((now-event.at)*1000),last=note.samples.at(-1);
+      if(t<120 || t>=60000/this.cfg.tempo || (last && t-last.t<35) || !Number.isFinite(cents))return;
+      note.samples.push({t,c:Math.round(octaveCents(cents)*10)/10});
+    }
+    result() {return evaluate(this.cfg,this.notes);}
+  }
+  return {ID,TOTAL,config,evaluate,Capture,octaveCents};
+})();
+
+</script>
+<!-- END test-score -->
+<!-- BEGIN test-ui -->
+<script>
+class SingingTestUI {
+  constructor(core, getConfig) {
+    this.core=core;this.getConfig=getConfig;this.$=id=>document.getElementById(id);
+    this.api='https://et3-scores-classe.asmm-1896.chatgpt.site';
+    this.profileKey='asmm.singing.profile.v1';this.resultKey='asmm.singing.result.v1';this.version=0;this.publishing=false;
+    for(const [value,label] of core.INTERVALS){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
+    for(const id of ['top-interval','top-direction'])this.$(id).addEventListener('change',()=>void this.refresh());
+    this.$('top-refresh').addEventListener('click',()=>void this.refresh());
+    this.$('test-save').addEventListener('click',()=>void this.save());
+    this.select(getConfig());
+    const pending=this.read(this.resultKey);
+    if(pending?.payload)try{this.show(pending.payload,SingingScore.evaluate(pending.payload.config,pending.payload.notes),!!pending.saved);}catch{}
+  }
+  read(key){try{return JSON.parse(localStorage.getItem(key)||'null');}catch{return null;}}
+  write(key,value){localStorage.setItem(key,JSON.stringify(value));}
+  async request(path, options={}) {
+    const response=await fetch(this.api+path,{...options,signal:AbortSignal.timeout(12000)});
+    let body;try{body=await response.json();}catch{throw new Error('Le classement est temporairement indisponible.');}
+    if(!response.ok)throw new Error(body.error||'Enregistrement impossible.');return body;
+  }
+  select(cfg){this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}
+  busy(value){this.$('test-start').disabled=value;if(value)this.$('test-result').hidden=true;}
+  async refresh() {
+    const id=++this.version,interval=Number(this.$('top-interval').value),direction=Number(this.$('top-direction').value);
+    this.$('top-status').textContent='Chargement du Top 5…';this.$('top-list').replaceChildren();
+    try {
+      const data=await this.request(`/api/singing/leaderboard?interval=${interval}&direction=${direction}`);
+      if(id!==this.version)return;
+      if(data.ruleset!==SingingScore.ID||data.interval!==interval||data.direction!==direction||!Array.isArray(data.rows))throw new Error('Classement incompatible.');
+      this.$('top-status').textContent=`${data.participants} participant${data.participants>1?'s':''} · meilleur score par pseudo`;
+      for(const [i,row] of data.rows.entries()){
+        const li=document.createElement('li'),rank=document.createElement('b'),name=document.createElement('strong'),score=document.createElement('strong'),detail=document.createElement('small');
+        rank.textContent=String(i+1);name.textContent=row.name;score.textContent=`${row.score.toLocaleString('fr-FR')} pts`;
+        detail.textContent=`${row.grade}/20 · ${row.config.tempo} bpm · écart moyen ${row.meanCents===null?'—':row.meanCents+' cents'} · réponse ${row.averageSeconds===null?'—':row.averageSeconds+' s'}`;
+        li.append(rank,name,score,detail);this.$('top-list').append(li);
+      }
+      if(!data.rows.length){const li=document.createElement('li');li.className='top-empty';li.textContent='Pas encore de score pour cet intervalle dans ce sens.';this.$('top-list').append(li);}
+    }catch{if(id===this.version)this.$('top-status').textContent='Top en ligne indisponible. Les tests restent utilisables et les résultats sont conservés sur cet appareil.';}
+  }
+  show(payload,metrics,saved=false) {
+    this.pending={payload,saved};this.$('test-result').hidden=false;
+    const label=this.core.INTERVALS.find(([n])=>n===payload.config.interval)[1];
+    this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · 20 notes terminées`;
+    this.$('test-score').textContent=metrics.score.toLocaleString('fr-FR')+' pts';
+    this.$('test-grade').textContent=metrics.grade+'/20';
+    this.$('test-precision').textContent=metrics.meanCents===null?'Aucune note détectée':`${metrics.meanCents} cents · ${metrics.heard}/20 entendues`;
+    this.$('test-speed').textContent=metrics.averageSeconds===null?'Aucune réponse stabilisée':`${metrics.averageSeconds} s depuis le piano`;
+    this.$('test-breakdown').textContent=`Justesse : ${metrics.accuracy} pts · Rapidité : ${metrics.speed} pts · Écarts : ${metrics.gaps} pts`;
+    const rows=this.$('test-note-results');rows.replaceChildren();
+    metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
+    const profile=this.read(this.profileKey)||{};
+    this.$('test-name').value=profile.name||payload.name||'';this.$('test-name').readOnly=!!profile.name;
+    this.$('test-save').disabled=saved;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
+    this.$('test-save-status').textContent=saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
+    try{this.write(this.resultKey,this.pending);}catch{this.$('test-save-status').textContent='Résultat disponible ici. Le stockage local est bloqué : garde cette page ouverte.';}
+    this.select(payload.config);
+  }
+  async save() {
+    if(this.publishing||!this.pending||this.pending.saved)return;
+    const pending=this.pending,profile=this.read(this.profileKey)||{};
+    const name=(profile.name||this.$('test-name').value).normalize('NFKC').trim().replace(/\s+/g,' ');
+    if([...name].length<2||[...name].length>16){this.$('test-save-status').textContent='Choisis un pseudo de 2 à 16 caractères.';return;}
+    this.publishing=true;this.$('test-save').disabled=true;this.$('test-save-status').textContent='Enregistrement en ligne…';
+    try {
+      if(!/^[a-f0-9]{64}$/.test(profile.token||''))profile.token=Array.from(crypto.getRandomValues(new Uint8Array(32)),n=>n.toString(16).padStart(2,'0')).join('');
+      this.write(this.profileKey,profile);pending.payload.name=name;this.write(this.resultKey,pending);
+      const result=await this.request('/api/singing/scores',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+profile.token},body:JSON.stringify(pending.payload)});
+      profile.name=result.name||name;profile.playerId=result.playerId;this.write(this.profileKey,profile);
+      pending.saved=true;
+      if(this.pending===pending){this.write(this.resultKey,pending);this.$('test-name').value=profile.name;this.$('test-name').readOnly=true;this.$('test-save').textContent='Score enregistré';this.$('test-save-status').textContent='Enregistré ! Seul ton meilleur score apparaît dans ce Top.';void this.refresh();}
+    }catch(error){if(this.pending===pending)this.$('test-save-status').textContent=['TypeError','TimeoutError'].includes(error.name)?'Connexion indisponible. Le résultat est conservé ; clique de nouveau sur Enregistrer pour réessayer.':error.message;}
+    finally{this.publishing=false;this.$('test-save').disabled=!!this.pending?.saved;}
+  }
+}
+
+</script>
+<!-- END test-ui -->
+<script>
 /* Optional microphone tuner. Audio stays in memory; no recording or network upload. */
 const SingingPitch = (() => {
   const TOLERANCE = 30;
-  const cents = (frequency, midi) => 1200 * Math.log2(frequency / (440 * 2 ** ((midi - 69) / 12)));
+  const cents = (frequency, midi) => { const raw = 1200 * Math.log2(frequency / (440 * 2 ** ((midi - 69) / 12))); return ((raw + 600) % 1200 + 1200) % 1200 - 600; };
   class Detector {
     constructor() { this.samples = new Float32Array(8192); this.difference = new Float32Array(4096); }
     detect(input, sampleRate) {
@@ -586,13 +753,12 @@ class SingingTuner {
     if (beat !== this.lastBeat) { this.reset('Écoute de votre voix…'); this.lastBeat = beat; }
     const midi = SingingPitch.target(state, now, this.buffer.length / this.audio.ctx.sampleRate);
     this.$('tuner-target').textContent = midi !== null && state.cfg.showNote
-      ? `Note à chanter : ${SingingCore.name(midi, true)}` : 'Gauche : trop grave · Centre : juste · Droite : trop aigu.';
+      ? `Note à chanter : ${SingingCore.name(midi, true).replace(/-?\d+$/, '')} · octave libre` : 'Gauche : trop grave · Centre : juste · Droite : trop aigu.';
     if (this.audio.ctx.state !== 'running') { this.reset('Son suspendu · relancez la séance.'); return; }
     if (!state.running) { this.reset('Micro prêt · démarrez la séance.'); return; }
     if (state.playMode === 'model') { this.reset('Écoutez le modèle · accordeur en pause.'); return; }
     if (now < this.blockedUntil) { this.reset('Écoutez le clavier ; l’accordeur reprend ensuite.'); return; }
     if (midi === null) { this.reset(event?.phase === 'sing' ? 'À vous · chantez la note.' : 'Écoutez · l’accordeur attend votre réponse.'); return; }
-    if (440 * 2 ** ((midi - 69) / 12) > 2100) { this.reset('Cette note est trop aiguë pour l’accordeur. Choisissez un registre plus grave.'); return; }
     this.analyser.getFloatTimeDomainData(this.buffer);
     const pitch = this.detector.detect(this.buffer, this.audio.ctx.sampleRate);
     if (!pitch) {
@@ -600,6 +766,7 @@ class SingingTuner {
       return;
     }
     const rawCents = SingingPitch.cents(pitch.frequency, midi), value = this.smoother.push(rawCents);
+    this.onSample?.(event, rawCents, now);
     if (value === null) {
       this.feedback.reset(); this.showFeedback();
       if (this.$('tuner-status').textContent !== 'Écoute de votre voix…') this.$('tuner-status').textContent = 'Écoute de votre voix…';
@@ -621,10 +788,12 @@ class SingingTuner {
   let running = false, preparing = false, token = 0, timer = null, raf = null, wakeLock = null;
   let sequence, clock, events = [], displayed = null, sampleWarning = '';
   let previewToken = 0;
-  let playMode = 'sing';
+  let playMode = 'sing', testRun = null, testPreparing = false;
+  const testUI = new SingingTestUI(C, () => cfg);
   let keyboardBase = Math.max(24, Math.min(84, Math.floor(Math.min(cfg.low, cfg.low + cfg.interval * cfg.direction) / 12) * 12));
   let keyboardToken = 0, keyboardVoice = null, keyboardTimer = null, keyboardLastMidi = null;
-  const tuner = new SingingTuner(audio, () => ({ cfg, running, playMode, displayed }));
+  const tuner = new SingingTuner(audio, () => ({ cfg: testRun || testPreparing ? {...cfg, showNote:false} : cfg, running, playMode, displayed }));
+  tuner.onSample = (event, cents, now) => testRun?.sample(event, cents, now);
   const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(cfg)); } catch (_) {} };
   function status(text, error = false) { $('status').textContent = text; $('status').classList.toggle('error', error); }
   function option(value, text) { const o = document.createElement('option'); o.value = value; o.textContent = text; return o; }
@@ -652,10 +821,11 @@ class SingingTuner {
     keyboardFeedback('Cliquez ou touchez une touche pour l’écouter.');
   }
   async function playKeyboardNote(midi, key) {
+    if (testRun || testPreparing) return;
     clearKeyboard(); const id = keyboardToken;
     try {
       await audio.init();
-      if (id !== keyboardToken || document.hidden || !key.isConnected) return;
+      if (id !== keyboardToken || document.hidden || !key.isConnected || testRun || testPreparing) return;
       audio.volumes(cfg.pianoVolume, cfg.clickVolume);
       if (!cfg.pianoVolume) { keyboardFeedback('Le volume du piano est à zéro. Montez-le pour entendre le clavier.'); return; }
       // Play immediately; the existing piano synth covers samples still loading.
@@ -686,10 +856,11 @@ class SingingTuner {
     $('direction-text').textContent = `${cfg.direction === 1 ? 'Au-dessus' : 'Au-dessous'} de chaque note jouée`;
     $('difficulty-help').textContent = C.DIFFICULTIES[cfg.difficulty].detail;
     const shift = cfg.interval * cfg.direction;
-    $('vocal-range').textContent = `Avec cet intervalle, vous chanterez entre ${C.name(cfg.low + shift, true)} et ${C.name(cfg.high + shift, true)}.`;
+    $('vocal-range').textContent = `Piano : ${C.name(cfg.low, true)} à ${C.name(cfg.high, true)}. Chantez la réponse à l’octave qui vous convient.`;
     const err = C.validate(cfg);
-    $('start').disabled = !!err || preparing || (running && playMode === 'sing');
-    $('play-model').disabled = !!err || preparing || (running && playMode === 'model');
+    $('start').disabled = !!err || preparing || !!testRun || testPreparing || (running && playMode === 'sing');
+    $('test-start').disabled = !!err || preparing || !!testRun || testPreparing;
+    $('play-model').disabled = !!err || preparing || !!testRun || testPreparing || (running && playMode === 'model');
     if (!running && !preparing) status(err, !!err);
   }
   function renderTempo() {
@@ -697,6 +868,7 @@ class SingingTuner {
     $('note-rate').textContent = `${(120 / cfg.tempo).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} s`;
   }
   function setTempo(value) {
+    if (testRun || testPreparing) return;
     if (!Number.isFinite(Number(value)) || value === '') { renderTempo(); return; }
     cfg.tempo = Math.max(30, Math.min(200, Math.round(Number(value))));
     if (clock) clock.tempo = cfg.tempo;
@@ -710,7 +882,13 @@ class SingingTuner {
   function lockSettings(locked) {
     $('session-settings').disabled = locked; $('register-settings').disabled = locked; $('sound').disabled = locked;
     $('preview-click').disabled = locked;
-    $('settings-hint').textContent = locked ? 'Arrêtez la séance pour changer le niveau, l’intervalle ou le registre. Le tempo et les volumes restent réglables.' : 'Choisissez un registre confortable pour la voix.';
+    const testing = !!testRun || testPreparing;
+    for (const id of ['tempo','tempo-number','tempo-less','tempo-more','show-note','tuner-toggle','keyboard-lower','keyboard-higher']) $(id).disabled = testing;
+    $('show-note').checked = testing ? false : cfg.showNote;
+    $('piano-keyboard').querySelectorAll('button').forEach(key => key.disabled = testing);
+    if (!testing) { $('keyboard-lower').disabled = keyboardBase === 24; $('keyboard-higher').disabled = keyboardBase === 84; }
+    $('test-start').textContent = testing ? 'Test en cours' : '🏆 Lancer le test';
+    $('settings-hint').textContent = testing ? 'Test : réglages fixes, clavier et modèle bloqués. Octave libre.' : locked ? 'Arrêtez la séance pour changer le niveau, l’intervalle ou le registre. Le tempo et les volumes restent réglables.' : 'Choisissez un registre confortable pour la voix.';
   }
   function modeLabels() {
     const model = playMode === 'model';
@@ -724,32 +902,38 @@ class SingingTuner {
     $('beat-piano').classList.toggle('active', event.phase === 'piano');
     $('beat-sing').classList.toggle('active', event.phase === 'sing');
     $('current-note').classList.toggle('singing', event.phase === 'sing');
-    $('counter').textContent = `${event.pairs} note${event.pairs > 1 ? 's' : ''} de départ`;
+    $('counter').textContent = testRun ? `${event.pairs} / 20 notes` : `${event.pairs} note${event.pairs > 1 ? 's' : ''} de départ`;
+    $('test-progress').textContent = testRun ? (event.phase === 'count' ? 'Test de 20 notes · préparez-vous' : `Note ${event.pairs} sur 20 · ${event.phase === 'piano' ? 'écoutez' : 'chantez'}`) : '';
     if (event.phase === 'count') {
       $('run-state').textContent = 'DÉCOMPTE'; $('phase-label').textContent = 'Prenez la pulsation';
       $('current-note').textContent = event.count; $('note-detail').textContent = event.count === 4 ? 'Le piano entre au prochain clic.' : '4 clics pour vous préparer';
     } else {
       const response = playMode === 'model' && event.phase === 'sing';
       const midi = response ? C.soundingPitch(event, cfg, true) : event.midi;
-      $('run-state').textContent = playMode === 'model' ? 'MODÈLE AU PIANO' : 'EN COURS';
+      $('run-state').textContent = testRun ? 'TEST CLASSÉ' : playMode === 'model' ? 'MODÈLE AU PIANO' : 'EN COURS';
       $('phase-label').textContent = event.phase === 'piano' ? 'Écoutez la note de départ' : response ? 'Écoutez la réponse au piano' : 'À vous de chanter';
-      $('current-note').textContent = cfg.showNote ? C.name(midi, true) : event.phase === 'piano' || response ? 'Écoutez' : 'Chantez';
-      $('note-detail').textContent = cfg.showNote ? `${response ? 'Réponse' : 'Note de départ'} · ${C.name(midi)}` : 'Le nom de la note est masqué.';
+      $('current-note').textContent = cfg.showNote && !testRun ? C.name(midi, true) : event.phase === 'piano' || response ? 'Écoutez' : 'Chantez';
+      $('note-detail').textContent = cfg.showNote && !testRun ? `${response ? 'Réponse' : 'Note de départ'} · ${C.name(midi)}` : 'Le nom de la note est masqué.';
     }
   }
   function animate() {
     if (!running) return;
     while (events.length && events[0].at <= audio.ctx.currentTime) visual(events.shift());
+    if (testRun && testRun.endAt !== null && audio.ctx.currentTime >= testRun.endAt) { finishTest(); return; }
     raf = requestAnimationFrame(animate);
   }
   function schedule() {
     if (!running) return;
+    if (testRun && !tuner.enabled) { stop('Test interrompu : le micro a été coupé. Aucun score enregistré.', true); return; }
+    if (testRun?.endAt != null) return;
     if (audio.ctx.state !== 'running') { stop('Le son a été interrompu. Relancez la séance pour reprendre le décompte.'); return; }
     try {
       for (const beat of clock.take(audio.ctx.currentTime)) {
         const event = { ...sequence.next(), at: beat.at, duration: beat.duration };
+        if (testRun && event.pairs > 20) { testRun.endAt = beat.at; break; }
+        testRun?.register(event);
         audio.click(beat.at, cfg.clickSound);
-        const pitch = C.soundingPitch(event, cfg, playMode === 'model');
+        const pitch = C.soundingPitch(event, cfg, !testRun && playMode === 'model');
         if (pitch !== null) audio.note(pitch, beat.at, beat.duration * 0.8, cfg.backend);
         events.push(event);
       }
@@ -763,13 +947,15 @@ class SingingTuner {
     } catch (_) { /* The exercise also works where screen wake lock is unavailable. */ }
   }
   async function start(mode = 'sing') {
-    if (preparing || C.validate(cfg) || (running && playMode === mode)) return;
+    if (preparing || testRun || testPreparing || C.validate(cfg) || (running && playMode === mode)) return;
+    const testing = mode === 'test';
     if (running) stop(undefined, false, true);
-    playMode = mode;
+    testPreparing = testing; playMode = testing ? 'sing' : mode;
+    if (testing) testUI.busy(true);
     previewToken++; clearKeyboard(); audio.stop();
     const id = ++token; preparing = true; sampleWarning = '';
     $('start').disabled = true; $('play-model').disabled = true; $('stop').disabled = false;
-    modeLabels(); $(mode === 'model' ? 'play-model' : 'start').textContent = 'Préparation…';
+    modeLabels(); $(testing ? 'test-start' : mode === 'model' ? 'play-model' : 'start').textContent = 'Préparation…';
     lockSettings(true); status('Préparation du son…');
     try {
       await audio.init();
@@ -782,14 +968,35 @@ class SingingTuner {
       }
       if (document.hidden) { stop('Revenez sur cette page, puis démarrez la séance.'); return; }
       if (audio.ctx.state !== 'running') throw new Error('Le son est suspendu. Appuyez à nouveau sur Démarrer.');
-      preparing = false; running = true; displayed = null; events = [];
-      sequence = new C.Sequence(cfg); clock = new C.BeatClock(audio.ctx.currentTime + 0.15, cfg.tempo);
+      if (testing) {
+        await tuner.enable();
+        if (id !== token) return;
+        if (!tuner.enabled) throw new Error('Le test nécessite le micro. Autorise-le puis relance le test.');
+        testRun = new SingingScore.Capture(cfg); testRun.id = crypto.randomUUID(); testRun.startAt = audio.ctx.currentTime + 0.15;
+      }
+      testPreparing = false; preparing = false; running = true; displayed = null; events = [];
+      lockSettings(true);
+      sequence = new C.Sequence(cfg); clock = new C.BeatClock(testRun?.startAt ?? audio.ctx.currentTime + 0.15, cfg.tempo);
       $('counter').textContent = '0 note de départ'; modeLabels(); describe();
       status(sampleWarning || (playMode === 'model' ? 'Le piano joue la note de départ, puis la réponse sur le clic suivant.' : 'Écoutez, puis chantez sur la pulsation suivante.'));
       timer = setInterval(schedule, 25); schedule(); raf = requestAnimationFrame(animate); keepAwake(id);
     } catch (err) { if (id === token) stop(err.message || 'Impossible de démarrer le son.', true); }
   }
+  function finishTest() {
+    const run = testRun;
+    try {
+      const result = run.result();
+      const payload = {id:run.id,ruleset:SingingScore.ID,config:run.cfg,notes:run.notes,duration:run.endAt-run.startAt};
+      testRun = null; stop('Test terminé : les 20 notes ont été évaluées.');
+      $('test-progress').textContent = '20 / 20 · test terminé';
+      testUI.show(payload,result);
+      $('test-result').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+    } catch (err) { stop(err.message || 'Test interrompu, aucun score enregistré.',true); }
+  }
   function stop(message = 'Séance arrêtée. Le prochain départ commence par 4 clics.', error = false, preserveTuner = false) {
+    const interrupted = !!testRun || testPreparing; testRun = null; testPreparing = false;
+    if (interrupted) { message = 'Test interrompu : aucun score enregistré. ' + (error ? message : ''); $('test-progress').textContent = 'Test interrompu'; }
+    testUI.busy(false);
     token++; previewToken++; running = false; preparing = false;
     if (!preserveTuner) tuner.disable();
     playMode = 'sing';
@@ -816,9 +1023,10 @@ class SingingTuner {
     } catch (err) { if (id === previewToken) status(err.message || 'Impossible de jouer le clic.', true); }
   }
   for (const id of ['interval', 'low', 'high', 'difficulty']) $(id).addEventListener('change', () => {
-    cfg[id] = id === 'difficulty' ? $(id).value : Number($(id).value); save(); describe();
+    if (running || preparing || testRun || testPreparing) return;
+    cfg[id] = id === 'difficulty' ? $(id).value : Number($(id).value); save(); describe(); testUI.select(cfg);
   });
-  document.querySelectorAll('[name=direction]').forEach(el => el.addEventListener('change', () => { cfg.direction = Number(el.value); save(); describe(); }));
+  document.querySelectorAll('[name=direction]').forEach(el => el.addEventListener('change', () => { if (running || preparing) return; cfg.direction = Number(el.value); save(); describe(); testUI.select(cfg); }));
   $('tempo').addEventListener('input', e => setTempo(e.target.value));
   $('tempo-number').addEventListener('change', e => setTempo(e.target.value));
   $('tempo-less').addEventListener('click', () => setTempo(cfg.tempo - 5));
@@ -831,11 +1039,13 @@ class SingingTuner {
   $('preview-click').addEventListener('click', previewClick);
   for (const [id, key] of [['piano-volume', 'pianoVolume'], ['click-volume', 'clickVolume']]) $(id).addEventListener('input', e => { cfg[key] = Number(e.target.value) / 100; renderVolumes(); save(); });
   $('show-note').addEventListener('change', e => {
+    if (testRun || testPreparing) { e.target.checked = false; return; }
     cfg.showNote = e.target.checked; save(); if (displayed) visual(displayed);
     if (keyboardLastMidi !== null) keyboardFeedback(cfg.showNote ? `${C.name(keyboardLastMidi, true)} / ${C.name(keyboardLastMidi)}` : 'Note jouée au clavier.');
   });
   $('keyboard-lower').addEventListener('click', () => { keyboardBase = Math.max(24, keyboardBase - 12); renderKeyboard(); });
   $('keyboard-higher').addEventListener('click', () => { keyboardBase = Math.min(84, keyboardBase + 12); renderKeyboard(); });
+  $('test-start').addEventListener('click', () => start('test'));
   $('start').addEventListener('click', () => start('sing'));
   $('play-model').addEventListener('click', () => start('model'));
   $('stop').addEventListener('click', () => stop());
