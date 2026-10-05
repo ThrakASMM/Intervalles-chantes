@@ -50,13 +50,15 @@
 /* Same compact sidebar proportions as the Accords application. */
 .menu-hdr{width:min(1280px,94vw)}
 .app-layout{width:min(1280px,94vw);display:grid;grid-template-columns:minmax(0,1fr) 330px;align-items:start;gap:18px;margin:6px 0 18px}
-.app-layout>.screen{grid-column:1;grid-row:1;min-width:0;width:100%;margin:0}
+.app-layout>.screen{grid-column:1;grid-row:1;min-width:0;width:100%;margin:0;container-type:inline-size}
+.first-choices .settings-grid{grid-template-columns:minmax(0,1fr)}
 .app-layout>.test-top{grid-column:2;grid-row:1;justify-self:end;width:330px;max-width:100%;min-width:0;margin:0;position:sticky;top:16px;background:#fff;border:1px solid #dfe7fb;border-top:4px solid var(--primary);border-radius:12px;padding:18px 16px;box-shadow:var(--shadow);scroll-margin-top:16px}
 .test-top-heading{display:flex;align-items:center;gap:10px;margin-bottom:16px}.test-top-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#fff4d6;font-size:23px;flex-shrink:0}.test-top-eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;color:#69758b;margin:0 0 3px}.test-top-heading h2{margin:0;font-size:1.05rem;line-height:1.25;color:#17223a}
 .test-top-refresh{margin-left:auto;background:#f3f5f9;color:#394861;flex-shrink:0;width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;font:700 23px system-ui}
 .test-top-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .test-top-filters label{min-width:0}.test-top-filters select{min-width:0;font-size:.85rem;padding:9px 6px}.test-top #top-status{font-size:12px;line-height:1.5;margin:12px 0 8px}
-@media(max-width:900px){.app-layout{grid-template-columns:minmax(0,1fr);gap:12px}.app-layout>.test-top{grid-column:1;grid-row:1;position:static}.app-layout>.screen{grid-column:1;grid-row:2}.test-top-heading{margin-bottom:10px}}
+@container(max-width:560px){.transport{grid-template-columns:1fr 1fr}.transport #stop{grid-column:1/-1}.transport button{padding:12px 8px;font-size:.85rem}.audio-grid{grid-template-columns:1fr 1fr;gap:16px}.audio-grid>label:first-child{grid-column:1/-1}.tuner-panel{padding:12px 10px 10px}.tuner-heading{gap:6px}.tuner-heading h3{font-size:.87rem}.tuner-heading button{font-size:.77rem;padding:6px 9px}.beat{padding:11px 10px;gap:8px}.beat-number{width:28px;height:28px;font-size:1rem}.beat small{font-size:.65rem}.beat strong{font-size:.95rem}.dot{display:none}}
+@media(max-width:760px){.app-layout{grid-template-columns:minmax(0,1fr);gap:12px}.app-layout>.screen{grid-column:1;grid-row:1}.app-layout>.test-top{grid-column:1;grid-row:2;position:static}.test-top-heading{margin-bottom:10px}}
 /* BEGIN pinball-top */
 .pinball-top{--pb-row-height:112px;margin:14px 0;min-width:0;color:#ffd086;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
 .pinball-top [hidden]{display:none!important}
