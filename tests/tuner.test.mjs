@@ -49,22 +49,41 @@ test('measures only the response beat, after the click, for ascending/descending
  state.displayed.phase='sing';state.playMode='model';assert.equal(Pitch.target(state,2.2,.085),null);
  state.playMode='sing';state.running=false;assert.equal(Pitch.target(state,2.2,.085),null);
 });
-test('needle smoothing requires stable frames and does not sweep through green on an octave jump',()=>{
+test('pitch smoothing requires stable frames and does not pass through green on an octave jump',()=>{
  const smooth=new Pitch.Smoother();assert.equal(smooth.push(-20),null);assert.equal(smooth.push(-18),-18);
  assert.equal(smooth.push(1200),null);assert(smooth.push(1204)>1190);
  smooth.reset();assert.equal(smooth.push(0),null);assert.equal(smooth.push(2),2);
+});
+test('colours appear promptly but changes must persist, without leaving green on a large error',()=>{
+ const feedback=new Pitch.Feedback();
+ assert.equal(feedback.push(0,0,.15).tone,'just','First reliable reading has no extra delay');
+ assert.equal(feedback.push(16,16,.2).tone,'just');
+ assert.equal(feedback.push(14,14,.25).tone,'just','A brief boundary crossing is ignored');
+ assert.equal(feedback.push(17,17,.3).tone,'just');
+ assert.equal(feedback.push(19,19,.35).tone,'just');
+ assert.equal(feedback.push(20,20,.4).tone,'near','Persistent sharpness changes colour');
+ assert.equal(feedback.current.label,'Trop aigu');
+ assert.equal(feedback.push(-20,-20,.45).label,'Trop aigu');
+ assert.equal(feedback.push(-20,-20,.55).label,'Trop grave','Direction also requires confirmation');
+ feedback.reset();assert.equal(feedback.push(0,0,1).tone,'just');
+ assert.equal(feedback.push(0,-70,1.05).tone,'far','Raw pitch clears stale green before smoothing catches up');
+ assert.equal(feedback.current.label,'Trop grave');
+ feedback.reset();assert.equal(feedback.push(0,22,2).tone,'near','Raw guard does not falsely show green');
+ assert.equal(feedback.current.label,'Trop aigu');
+ feedback.reset();assert.equal(feedback.current,null);
 });
 test('all embedded scripts parse and tuner controls have unique DOM IDs',()=>{
  scripts.forEach(s=>new Script(s));
  const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);assert.equal(ids.length,new Set(ids).size);
  for(const match of source.matchAll(/this\.\$\('([^']+)'\)/g))assert(ids.includes(match[1]),match[1]);
+ for(const removed of ['tuner-needle','tuner-dial','tuner-reading','tuner-note'])assert(!html.includes(removed),removed+' is removed');
  assert(!source.includes('fetch('));assert(!source.includes('MediaRecorder'));
 });
 
 function harness(getUserMedia) {
  const nodes=new Map(),connections=[],timers=new Map();let timerId=0;
  function element(id){if(!nodes.has(id))nodes.set(id,{textContent:'',style:{},dataset:{},attributes:{},classList:{toggle(){}},addEventListener(){},setAttribute(k,v){this.attributes[k]=v;}});return nodes.get(id);}
- const state={running:true,playMode:'sing',displayed:{phase:'sing',midi:65,at:0,duration:1},cfg:{interval:4,direction:1,showNote:true}};
+ const state={running:true,playMode:'sing',displayed:{phase:'sing',midi:65,at:0,duration:2},cfg:{interval:4,direction:1,showNote:true}};
  let samples=signal(440,48000);
  const analyser={fftSize:4096,disconnect(){this.disconnected=true;},getFloatTimeDomainData(data){data.set(samples);}};
  const src={connect(node){connections.push(node);},disconnect(){this.disconnected=true;}};
@@ -81,22 +100,21 @@ test('microphone is opt-in, never monitored to speakers; accurate, flat, sharp a
  const mic=stream();let requests=0;const h=harness(async options=>{requests++;assert.equal(options.video,false);return mic;});
  assert.equal(requests,0);assert.equal(h.audio.microphoneActive,false);
  await h.tuner.enable();assert.equal(requests,1);assert.equal(h.audio.microphoneActive,true);assert.equal(h.connections.length,1);assert.equal(h.connections[0],h.analyser);assert.equal(h.timers.size,1);
- h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-status').textContent,'Juste');
+ h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');
  for(const [offset,direction] of [[-60,'Trop grave'],[60,'Trop aigu'],[1200,'Trop aigu']]){
-  h.setSignal(signal(440*2**(offset/1200),48000));for(let frame=0;frame<5;frame++)h.tuner.tick();
-  assert(h.element('tuner-status').textContent.startsWith(direction));assert.equal(h.element('tuner-panel').dataset.pitch,'far');
-  const angle=Number(h.element('tuner-needle').attributes.transform.match(/rotate\(([^ ]+)/)[1]);assert.equal(Math.sign(angle),Math.sign(offset));
+  h.setSignal(signal(440*2**(offset/1200),48000));for(let frame=0;frame<7;frame++){h.audio.ctx.currentTime+=.05;h.tuner.tick();}
+  assert.equal(h.element('tuner-verdict').textContent,direction);assert.equal(h.element('tuner-panel').dataset.pitch,'far');
  }
- h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-needle').style.opacity,'0');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');
+ h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');
  h.tuner.disable();assert.equal(mic.track.stops,1);assert.equal(h.timers.size,0);assert.equal(h.src.disconnected,true);assert.equal(h.analyser.disconnected,true);assert.equal(h.audio.microphoneActive,false);
  assert.equal(h.navigator.audioSession.type,'playback');
 });
 test('tuner pauses for the model, piano beat, reference keyboard and respects hidden note names',async()=>{
  const h=harness(async()=>stream());await h.tuner.enable();h.tuner.tick();
- h.state.playMode='model';h.tuner.tick();assert.equal(h.element('tuner-needle').style.opacity,'0');assert.match(h.element('tuner-status').textContent,/modèle/);
- h.state.playMode='sing';h.state.displayed.phase='piano';h.tuner.tick();assert.equal(h.element('tuner-needle').style.opacity,'0');
- h.state.displayed.phase='sing';h.state.cfg.showNote=false;h.tuner.tick();h.tuner.tick();assert.equal(h.element('tuner-note').textContent,'');assert(!h.element('tuner-target').textContent.includes('note-'));
- h.tuner.pauseFor(1.6);h.tuner.tick();assert.equal(h.element('tuner-needle').style.opacity,'0');assert.match(h.element('tuner-status').textContent,/clavier/);
+ h.state.playMode='model';h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.match(h.element('tuner-status').textContent,/modèle/);
+ h.state.playMode='sing';h.state.displayed.phase='piano';h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');
+ h.state.displayed.phase='sing';h.state.cfg.showNote=false;h.tuner.tick();h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'Juste');assert(!h.element('tuner-target').textContent.includes('note-'));
+ h.tuner.pauseFor(1.6);h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.match(h.element('tuner-status').textContent,/clavier/);
  h.document.hidden=true;h.tuner.tick();assert.equal(h.tuner.enabled,false);assert.equal(h.timers.size,0);
 });
 test('permission denied or missing microphone leaves music usable and lets the user retry',async()=>{

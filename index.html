@@ -30,8 +30,14 @@
 @media(max-width:600px){.keyboard-heading{gap:8px}.keyboard-register{width:100%;justify-content:center}.keyboard-touch-help{display:block;margin:7px 0 0;font-size:.7rem;text-align:center;color:var(--sub)}.piano-keyboard{height:128px}}
 .tuner-panel{max-width:610px;margin:0 auto 18px;padding:15px 18px 12px;border:1px solid #d9e2ef;border-radius:12px;background:#fff;box-shadow:0 2px 8px #20395d06}
 .tuner-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.tuner-heading h3{margin:0;color:#243a61;font-size:.95rem}.tuner-mic-state{display:block;margin-top:4px;font-size:.59rem;letter-spacing:.09em;font-weight:700;color:#788397}.tuner-mic-state::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:#a7b1c0}.mic-on .tuner-mic-state{color:#0756d6}.mic-on .tuner-mic-state::before{background:#0a66ff}.tuner-heading button{flex-shrink:0;min-height:40px}
-.tuner-target{text-align:center;font-size:.79rem;color:#586780;margin:14px 0 0;min-height:1.4em}.tuner-dial{display:block;width:min(100%,350px);margin:-4px auto -12px}.tuner-scale{font:600 11px system-ui;fill:#61718a;text-anchor:middle}.tuner-needle{transition:opacity .1s}.tuner-labels{display:flex;justify-content:space-between;max-width:315px;margin:auto;font-size:.73rem;color:#9f3b36}.tuner-labels strong{color:#167947;font-weight:750}.tuner-result{display:flex;justify-content:center;align-items:baseline;gap:10px;min-height:28px;margin:10px 0 0;font-variant-numeric:tabular-nums}.tuner-result output{font-size:1.15rem;font-weight:800;color:#43536b}.tuner-result span{font-size:.75rem;color:#657088}.tuner-status{font-size:.82rem;line-height:1.4;min-height:1.4em;text-align:center;color:#61718a;font-weight:650;margin:3px 0 0}.tuner-status.error{color:#ad193d}.tuner-panel[data-pitch=just] .tuner-status,.tuner-panel[data-pitch=just] output{color:#137348}.tuner-panel[data-pitch=near] .tuner-status{color:#92610a}.tuner-panel[data-pitch=far] .tuner-status{color:#b53636}.tuner-help{text-align:center;font-size:.69rem;line-height:1.55;color:#707a8c;margin:12px 0 0}.tuner-panel:not(.mic-on) .tuner-dial{opacity:.5}
-@media(max-width:600px){.tuner-panel{padding:12px 10px 10px}.tuner-heading{gap:6px}.tuner-heading h3{font-size:.87rem}.tuner-heading button{font-size:.77rem;padding:6px 9px}.tuner-dial{width:min(100%,300px)}.tuner-help{font-size:.65rem}.tuner-result{flex-wrap:wrap;gap:3px 8px}}
+.tuner-target{text-align:center;font-size:.79rem;color:#586780;margin:14px 0 10px;min-height:1.4em}
+.tuner-feedback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:112px;padding:16px;border-radius:12px;background:#edf1f6;color:#56657a;text-align:center;transition:background-color .15s,color .15s}
+.tuner-feedback strong{font-size:clamp(1.5rem,5vw,2rem);line-height:1.2;font-weight:800}.tuner-feedback span{font-size:.85rem;min-height:1.4em}
+.tuner-panel[data-pitch=just] .tuner-feedback{background:#16834e;color:#fff}.tuner-panel[data-pitch=near] .tuner-feedback{background:#ffd28c;color:#713f0c}.tuner-panel[data-pitch=far] .tuner-feedback{background:#c73545;color:#fff}
+.tuner-status{font-size:.82rem;line-height:1.4;min-height:1.4em;text-align:center;color:#61718a;font-weight:650;margin:10px 0 0}.tuner-status.error{color:#ad193d}.tuner-help{text-align:center;font-size:.69rem;line-height:1.55;color:#707a8c;margin:12px 0 0}
+@media(prefers-reduced-motion:reduce){.tuner-feedback{transition:none}}
+@media(max-width:600px){.tuner-panel{padding:12px 10px 10px}.tuner-heading{gap:6px}.tuner-heading h3{font-size:.87rem}.tuner-heading button{font-size:.77rem;padding:6px 9px}.tuner-help{font-size:.65rem}}
+
 </style>
 </head>
 <body>
@@ -64,19 +70,10 @@
       <div class="current"><p id="phase-label">Décompte de 4 pulsations au démarrage</p><div class="current-note" id="current-note">—</div><p id="note-detail">Puis piano / chant, en continu.</p></div>
       <section class="tuner-panel" id="tuner-panel" aria-labelledby="tuner-title" data-pitch="waiting">
         <div class="tuner-heading"><div><h3 id="tuner-title">Accordeur vocal</h3><span class="tuner-mic-state" id="tuner-mic-state">MICRO COUPÉ</span></div><button type="button" class="ctrl-btn white small" id="tuner-toggle" aria-pressed="false">Activer le micro</button></div>
-        <p class="tuner-target" id="tuner-target">Le centre indique la note à chanter.</p>
-        <svg class="tuner-dial" viewBox="0 0 400 190" aria-hidden="true" focusable="false">
-          <defs><linearGradient id="tuner-colors" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d64745"/><stop offset=".2" stop-color="#e7633d"/><stop offset=".36" stop-color="#e8a834"/><stop offset=".43" stop-color="#30a26c"/><stop offset=".57" stop-color="#30a26c"/><stop offset=".64" stop-color="#e8a834"/><stop offset=".8" stop-color="#e7633d"/><stop offset="1" stop-color="#d64745"/></linearGradient></defs>
-          <path class="tuner-arc" d="M73.1 110.8 A140 140 0 0 1 326.9 110.8" fill="none" stroke="url(#tuner-colors)" stroke-width="18" stroke-linecap="round"/>
-          <g stroke="#61718a" stroke-width="2"><path d="M89 118 L80 114 M136 75 L131 67 M264 75 L269 67 M311 118 L320 114"/><path d="M200 19 L200 48" stroke="#167947" stroke-width="3"/></g>
-          <g class="tuner-scale"><text x="55" y="139">−100</text><text x="200" y="65">0</text><text x="345" y="139">+100</text></g>
-          <g id="tuner-needle" class="tuner-needle" style="opacity:0"><path d="M196.5 170 L200 39 L203.5 170 Z" fill="#243a61"/></g>
-          <circle cx="200" cy="170" r="9" fill="#243a61"/><circle cx="200" cy="170" r="3" fill="#fff"/>
-        </svg>
-        <div class="tuner-labels" aria-hidden="true"><span>Trop grave</span><strong>Juste</strong><span>Trop aigu</span></div>
-        <div class="tuner-result"><output id="tuner-reading" aria-live="off" aria-label="Écart avec la note attendue">—</output><span id="tuner-note"></span></div>
+        <p class="tuner-target" id="tuner-target">La couleur indique la justesse de votre note.</p>
+        <div class="tuner-feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="tuner-verdict">En attente</strong><span id="tuner-hint">Chantez une note tenue</span></div>
         <p class="tuner-status" id="tuner-status" role="status" aria-live="polite">Accordeur désactivé</p>
-        <p class="tuner-help">Écoute sur « À vous » · vert à ±15 cents (100 cents = 1 demi-ton).<br>Un casque aide à isoler votre voix. Le micro se coupe à l’arrêt ; votre voix n’est ni enregistrée ni envoyée.</p>
+        <p class="tuner-help">Vert : juste · Orange : presque · Rouge : à corriger.<br>Écoute sur « À vous ».<br>Un casque aide à isoler votre voix. Le micro se coupe à l’arrêt ; votre voix n’est ni enregistrée ni envoyée.</p>
       </section>
       <div class="transport"><button type="button" class="validate-btn" id="start">▶ Démarrer</button><button type="button" class="ctrl-btn white" id="play-model">♫ Joue-le pour moi</button><button type="button" class="ctrl-btn white" id="stop" disabled>■ Arrêter</button></div>
       <p class="model-help">« Joue-le pour moi » joue aussi la réponse, une pulsation après la note de départ.</p>
@@ -427,6 +424,32 @@ const SingingPitch = (() => {
       return this.value;
     }
   }
+  class Feedback {
+    constructor() { this.reset(); }
+    reset() { this.current = null; this.pending = null; this.since = 0; }
+    push(value, rawCents, now) {
+      const accurate = Math.abs(value) <= TOLERANCE && Math.abs(rawCents) <= TOLERANCE + 3;
+      const error = Math.abs(value) <= TOLERANCE && Math.abs(rawCents) > TOLERANCE + 3 ? rawCents : value;
+      const tone = accurate ? 'just' : Math.abs(error) < 40 ? 'near' : 'far';
+      const side = accurate ? 'center' : error < 0 ? 'flat' : 'sharp';
+      const next = { key: `${tone}-${side}`, tone,
+        label: accurate ? 'Juste' : side === 'flat' ? 'Trop grave' : 'Trop aigu',
+        hint: accurate ? 'Gardez cette note' : side === 'flat' ? 'Montez un peu' : 'Descendez un peu' };
+      // Show the first reliable result immediately, including at a fast tempo.
+      // Brief fluctuations must persist before changing the colour or instruction.
+      // A large error clears green immediately, even while smoothing catches up.
+      if (!this.current || (this.current.tone === 'just' && Math.abs(rawCents) > 60)) {
+        this.current = next; this.pending = null;
+      } else if (next.key === this.current.key) {
+        this.pending = null;
+      } else if (next.key !== this.pending) {
+        this.pending = next.key; this.since = now;
+      } else if (now - this.since >= 0.099) {
+        this.current = next; this.pending = null;
+      }
+      return this.current;
+    }
+  }
   function target(state, now, windowSeconds) {
     const event = state.displayed;
     if (!state.running || state.playMode !== 'sing' || event?.phase !== 'sing') return null;
@@ -435,13 +458,13 @@ const SingingPitch = (() => {
     if (now < event.at + windowSeconds + 0.045 || now >= event.at + event.duration) return null;
     return event.midi + state.cfg.interval * state.cfg.direction;
   }
-  return { Detector, Smoother, cents, target, TOLERANCE };
+  return { Detector, Smoother, Feedback, cents, target, TOLERANCE };
 })();
 
 class SingingTuner {
   constructor(audio, state) {
     this.audio = audio; this.state = state; this.serial = 0; this.enabled = false; this.pending = false;
-    this.detector = new SingingPitch.Detector(); this.smoother = new SingingPitch.Smoother();
+    this.detector = new SingingPitch.Detector(); this.smoother = new SingingPitch.Smoother(); this.feedback = new SingingPitch.Feedback();
     this.nodes = []; this.stream = null; this.timer = null; this.lastBeat = null; this.blockedUntil = 0;
     this.$ = id => document.getElementById(id);
     this.button = this.$('tuner-toggle');
@@ -454,12 +477,15 @@ class SingingTuner {
     this.$('tuner-panel').classList.toggle('mic-on', this.enabled);
     this.$('tuner-mic-state').textContent = this.pending ? 'AUTORISATION…' : this.enabled ? 'MICRO ACTIF' : 'MICRO COUPÉ';
   }
+  showFeedback(result = null) {
+    this.$('tuner-panel').dataset.pitch = result?.tone || 'waiting';
+    const label = result?.label || 'En attente', hint = result?.hint || 'Chantez une note tenue';
+    if (this.$('tuner-verdict').textContent !== label) this.$('tuner-verdict').textContent = label;
+    if (this.$('tuner-hint').textContent !== hint) this.$('tuner-hint').textContent = hint;
+  }
   reset(message, error = false) {
-    this.smoother.reset(); this.lastValidAt = null;
-    this.$('tuner-needle').style.opacity = '0';
-    this.$('tuner-panel').dataset.pitch = 'waiting';
-    this.$('tuner-reading').textContent = '—';
-    this.$('tuner-note').textContent = '';
+    this.smoother.reset(); this.feedback.reset(); this.lastValidAt = null;
+    this.showFeedback();
     if (this.$('tuner-status').textContent !== message) this.$('tuner-status').textContent = message;
     this.$('tuner-status').classList.toggle('error', error);
   }
@@ -512,7 +538,7 @@ class SingingTuner {
     this.nodes = []; this.analyser = null; this.buffer = null; this.lastBeat = null;
     this.audio.microphoneActive = false;
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
-    this.controls(); this.$('tuner-target').textContent = 'Le centre indique la note à chanter.';
+    this.controls(); this.$('tuner-target').textContent = 'La couleur indique la justesse de votre note.';
     this.reset(message, error);
   }
   pauseFor(seconds) {
@@ -524,10 +550,10 @@ class SingingTuner {
     if (document.hidden) { this.disable(); return; }
     const state = this.state(), now = this.audio.ctx.currentTime, event = state.displayed;
     const beat = event?.at ?? null;
-    if (beat !== this.lastBeat) { this.smoother.reset(); this.lastValidAt = null; this.lastBeat = beat; }
+    if (beat !== this.lastBeat) { this.reset('Écoute de votre voix…'); this.lastBeat = beat; }
     const midi = SingingPitch.target(state, now, this.buffer.length / this.audio.ctx.sampleRate);
     this.$('tuner-target').textContent = midi !== null && state.cfg.showNote
-      ? `Note à chanter : ${SingingCore.name(midi, true)}` : 'Le centre indique la note à chanter.';
+      ? `Note à chanter : ${SingingCore.name(midi, true)}` : 'La couleur indique la justesse de votre note.';
     if (this.audio.ctx.state !== 'running') { this.reset('Son suspendu · relancez la séance.'); return; }
     if (!state.running) { this.reset('Micro prêt · démarrez la séance.'); return; }
     if (state.playMode === 'model') { this.reset('Écoutez le modèle · accordeur en pause.'); return; }
@@ -541,16 +567,14 @@ class SingingTuner {
       return;
     }
     const rawCents = SingingPitch.cents(pitch.frequency, midi), value = this.smoother.push(rawCents);
-    if (value === null) { this.$('tuner-panel').dataset.pitch = 'waiting'; this.$('tuner-note').textContent = ''; this.$('tuner-needle').style.opacity = '0'; this.$('tuner-reading').textContent = '—'; this.$('tuner-status').textContent = 'Écoute de votre voix…'; return; }
+    if (value === null) {
+      this.feedback.reset(); this.showFeedback();
+      if (this.$('tuner-status').textContent !== 'Écoute de votre voix…') this.$('tuner-status').textContent = 'Écoute de votre voix…';
+      return;
+    }
     this.lastValidAt = now;
-    const accurate = Math.abs(value) <= SingingPitch.TOLERANCE && Math.abs(rawCents) <= SingingPitch.TOLERANCE + 3;
-    const rounded = Math.round(value), label = accurate ? 'Juste' : value < 0 ? 'Trop grave · montez un peu' : 'Trop aigu · descendez un peu';
-    this.$('tuner-panel').dataset.pitch = accurate ? 'just' : Math.abs(value) < 40 ? 'near' : 'far';
-    const needle = this.$('tuner-needle');
-    needle.setAttribute('transform', `rotate(${Math.max(-100, Math.min(100, value)) * 0.65} 200 170)`); needle.style.opacity = '1';
-    this.$('tuner-reading').textContent = `${rounded > 0 ? '+' : ''}${rounded} cents`;
-    if (this.$('tuner-status').textContent !== label) this.$('tuner-status').textContent = label;
-    this.$('tuner-note').textContent = state.cfg.showNote ? `Voix : ${SingingCore.name(Math.round(69 + 12 * Math.log2(pitch.frequency / 440)), true)}` : '';
+    this.showFeedback(this.feedback.push(value, rawCents, now));
+    if (this.$('tuner-status').textContent !== 'À vous · chantez la note.') this.$('tuner-status').textContent = 'À vous · chantez la note.';
   }
 }
 
