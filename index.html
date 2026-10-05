@@ -28,6 +28,10 @@
 .piano-key.active{background:#0a66ff!important;color:#fff!important;box-shadow:inset 0 2px 5px #0003!important}.piano-key:focus-visible{outline-offset:-4px;z-index:3}
 .keyboard-feedback{margin:9px 0 0;min-height:20px;font-size:.8rem;text-align:center;color:#42536f;font-weight:600}.keyboard-feedback.error{color:#ad193d}.keyboard-touch-help{display:none}
 @media(max-width:600px){.keyboard-heading{gap:8px}.keyboard-register{width:100%;justify-content:center}.keyboard-touch-help{display:block;margin:7px 0 0;font-size:.7rem;text-align:center;color:var(--sub)}.piano-keyboard{height:128px}}
+.tuner-panel{max-width:610px;margin:0 auto 18px;padding:15px 18px 12px;border:1px solid #d9e2ef;border-radius:12px;background:#fff;box-shadow:0 2px 8px #20395d06}
+.tuner-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.tuner-heading h3{margin:0;color:#243a61;font-size:.95rem}.tuner-mic-state{display:block;margin-top:4px;font-size:.59rem;letter-spacing:.09em;font-weight:700;color:#788397}.tuner-mic-state::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:#a7b1c0}.mic-on .tuner-mic-state{color:#0756d6}.mic-on .tuner-mic-state::before{background:#0a66ff}.tuner-heading button{flex-shrink:0;min-height:40px}
+.tuner-target{text-align:center;font-size:.79rem;color:#586780;margin:14px 0 0;min-height:1.4em}.tuner-dial{display:block;width:min(100%,350px);margin:-4px auto -12px}.tuner-scale{font:600 11px system-ui;fill:#61718a;text-anchor:middle}.tuner-needle{transition:opacity .1s}.tuner-labels{display:flex;justify-content:space-between;max-width:315px;margin:auto;font-size:.73rem;color:#9f3b36}.tuner-labels strong{color:#167947;font-weight:750}.tuner-result{display:flex;justify-content:center;align-items:baseline;gap:10px;min-height:28px;margin:10px 0 0;font-variant-numeric:tabular-nums}.tuner-result output{font-size:1.15rem;font-weight:800;color:#43536b}.tuner-result span{font-size:.75rem;color:#657088}.tuner-status{font-size:.82rem;line-height:1.4;min-height:1.4em;text-align:center;color:#61718a;font-weight:650;margin:3px 0 0}.tuner-status.error{color:#ad193d}.tuner-panel[data-pitch=just] .tuner-status,.tuner-panel[data-pitch=just] output{color:#137348}.tuner-panel[data-pitch=near] .tuner-status{color:#92610a}.tuner-panel[data-pitch=far] .tuner-status{color:#b53636}.tuner-help{text-align:center;font-size:.69rem;line-height:1.55;color:#707a8c;margin:12px 0 0}.tuner-panel:not(.mic-on) .tuner-dial{opacity:.5}
+@media(max-width:600px){.tuner-panel{padding:12px 10px 10px}.tuner-heading{gap:6px}.tuner-heading h3{font-size:.87rem}.tuner-heading button{font-size:.77rem;padding:6px 9px}.tuner-dial{width:min(100%,300px)}.tuner-help{font-size:.65rem}.tuner-result{flex-wrap:wrap;gap:3px 8px}}
 </style>
 </head>
 <body>
@@ -58,6 +62,22 @@
         <div class="beat sing" id="beat-sing"><span class="beat-number">2</span><span><strong id="second-beat-title">À vous</strong><small id="second-beat-help">Chantez l’intervalle</small></span><span class="dot"></span></div>
       </div>
       <div class="current"><p id="phase-label">Décompte de 4 pulsations au démarrage</p><div class="current-note" id="current-note">—</div><p id="note-detail">Puis piano / chant, en continu.</p></div>
+      <section class="tuner-panel" id="tuner-panel" aria-labelledby="tuner-title" data-pitch="waiting">
+        <div class="tuner-heading"><div><h3 id="tuner-title">Accordeur vocal</h3><span class="tuner-mic-state" id="tuner-mic-state">MICRO COUPÉ</span></div><button type="button" class="ctrl-btn white small" id="tuner-toggle" aria-pressed="false">Activer le micro</button></div>
+        <p class="tuner-target" id="tuner-target">Le centre indique la note à chanter.</p>
+        <svg class="tuner-dial" viewBox="0 0 400 190" aria-hidden="true" focusable="false">
+          <defs><linearGradient id="tuner-colors" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d64745"/><stop offset=".2" stop-color="#e7633d"/><stop offset=".36" stop-color="#e8a834"/><stop offset=".43" stop-color="#30a26c"/><stop offset=".57" stop-color="#30a26c"/><stop offset=".64" stop-color="#e8a834"/><stop offset=".8" stop-color="#e7633d"/><stop offset="1" stop-color="#d64745"/></linearGradient></defs>
+          <path class="tuner-arc" d="M73.1 110.8 A140 140 0 0 1 326.9 110.8" fill="none" stroke="url(#tuner-colors)" stroke-width="18" stroke-linecap="round"/>
+          <g stroke="#61718a" stroke-width="2"><path d="M89 118 L80 114 M136 75 L131 67 M264 75 L269 67 M311 118 L320 114"/><path d="M200 19 L200 48" stroke="#167947" stroke-width="3"/></g>
+          <g class="tuner-scale"><text x="55" y="139">−100</text><text x="200" y="65">0</text><text x="345" y="139">+100</text></g>
+          <g id="tuner-needle" class="tuner-needle" style="opacity:0"><path d="M196.5 170 L200 39 L203.5 170 Z" fill="#243a61"/></g>
+          <circle cx="200" cy="170" r="9" fill="#243a61"/><circle cx="200" cy="170" r="3" fill="#fff"/>
+        </svg>
+        <div class="tuner-labels" aria-hidden="true"><span>Trop grave</span><strong>Juste</strong><span>Trop aigu</span></div>
+        <div class="tuner-result"><output id="tuner-reading" aria-live="off" aria-label="Écart avec la note attendue">—</output><span id="tuner-note"></span></div>
+        <p class="tuner-status" id="tuner-status" role="status" aria-live="polite">Accordeur désactivé</p>
+        <p class="tuner-help">Écoute sur « À vous » · vert à ±15 cents (100 cents = 1 demi-ton).<br>Un casque aide à isoler votre voix. Le micro se coupe à l’arrêt ; votre voix n’est ni enregistrée ni envoyée.</p>
+      </section>
       <div class="transport"><button type="button" class="validate-btn" id="start">▶ Démarrer</button><button type="button" class="ctrl-btn white" id="play-model">♫ Joue-le pour moi</button><button type="button" class="ctrl-btn white" id="stop" disabled>■ Arrêter</button></div>
       <p class="model-help">« Joue-le pour moi » joue aussi la réponse, une pulsation après la note de départ.</p>
       <p id="status" class="status" role="status" aria-live="polite"></p>
@@ -193,7 +213,7 @@ class SingingAudio {
   async init() {
     // Musical playback should use the media volume, not the iPhone ringer.
     // Set this during the user's play gesture; older browsers keep their default.
-    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+    try { if (navigator.audioSession) navigator.audioSession.type = this.microphoneActive ? 'play-and-record' : 'playback'; } catch (_) {}
     if (!this.ctx) {
       const Context = window.AudioContext || window.webkitAudioContext;
       if (!Context) throw new Error('Ce navigateur ne permet pas de jouer les sons. Essayez Safari, Chrome ou Firefox.');
@@ -343,6 +363,198 @@ class SingingAudio {
   }
 }
 </script>
+  <script>
+/* Optional microphone tuner. Audio stays in memory; no recording or network upload. */
+const SingingPitch = (() => {
+  const TOLERANCE = 15;
+  const cents = (frequency, midi) => 1200 * Math.log2(frequency / (440 * 2 ** ((midi - 69) / 12)));
+  class Detector {
+    constructor() { this.samples = new Float32Array(8192); this.difference = new Float32Array(4096); }
+    detect(input, sampleRate) {
+      if (!input.length || !Number.isFinite(sampleRate) || sampleRate <= 0) return null;
+      // Downsample to about 24 kHz: enough for a singing voice, with bounded CPU use.
+      const stride = Math.max(1, Math.floor(sampleRate / 24000));
+      const n = Math.min(this.samples.length, Math.floor(input.length / stride)), rate = sampleRate / stride;
+      const maxLag = Math.min(Math.floor(n / 2) - 1, Math.ceil(rate / 30));
+      const minLag = Math.max(2, Math.floor(rate / 2100));
+      if (maxLag <= minLag) return null;
+      let mean = 0, energy = 0, earlyEnergy = 0, lateEnergy = 0;
+      for (let i = 0; i < n; i++) {
+        let sum = 0; for (let j = 0; j < stride; j++) sum += input[i * stride + j];
+        const value = sum / stride; this.samples[i] = value; mean += value;
+      }
+      mean /= n;
+      for (let i = 0; i < n; i++) {
+        this.samples[i] -= mean; const square = this.samples[i] ** 2; energy += square;
+        if (i < n / 2) earlyEnergy += square; else lateEnergy += square;
+      }
+      const rms = Math.sqrt(energy / n);
+      if (!Number.isFinite(rms) || rms < 0.006) return null;
+      if (Math.min(earlyEnergy, lateEnergy) < Math.max(earlyEnergy, lateEnergy) * 0.08) return null;
+      // YIN cumulative normalized difference: reject aperiodic/noisy frames.
+      const span = n - maxLag, diff = this.difference;
+      let runningSum = 0;
+      diff[0] = 1;
+      for (let lag = 1; lag <= maxLag; lag++) {
+        let sum = 0;
+        for (let i = 0; i < span; i++) { const delta = this.samples[i] - this.samples[i + lag]; sum += delta * delta; }
+        runningSum += sum; diff[lag] = runningSum ? sum * lag / runningSum : 1;
+      }
+      for (let lag = minLag; lag < maxLag; lag++) {
+        if (diff[lag] >= 0.12) continue;
+        while (lag + 1 < maxLag && diff[lag + 1] < diff[lag]) lag++;
+        const a = diff[lag - 1], b = diff[lag], c = diff[lag + 1];
+        const denominator = a - 2 * b + c;
+        const offset = denominator ? Math.max(-0.5, Math.min(0.5, (a - c) / (2 * denominator))) : 0;
+        const frequency = rate / (lag + offset);
+        if (frequency < 30 || frequency > 2100) return null;
+        return { frequency, confidence: 1 - b, rms };
+      }
+      return null;
+    }
+  }
+  class Smoother {
+    reset() { this.values = []; this.value = null; }
+    constructor() { this.reset(); }
+    push(value) {
+      // Two consistent frames prevent a transient from flashing green. A large
+      // jump resets immediately rather than sweeping through the correct note.
+      if (this.values.length && Math.abs(value - this.values.at(-1)) > 100) this.reset();
+      this.values.push(value); if (this.values.length > 3) this.values.shift();
+      if (this.values.length < 2) return null;
+      const sorted = [...this.values].sort((a, b) => a - b), median = sorted[Math.floor(sorted.length / 2)];
+      this.value = this.value === null ? median : this.value + 0.55 * (median - this.value);
+      return this.value;
+    }
+  }
+  function target(state, now, windowSeconds) {
+    const event = state.displayed;
+    if (!state.running || state.playMode !== 'sing' || event?.phase !== 'sing') return null;
+    // Wait for the click and one complete microphone buffer; never read the
+    // preceding piano beat or the next beat, even after a delayed visual frame.
+    if (now < event.at + windowSeconds + 0.045 || now >= event.at + event.duration) return null;
+    return event.midi + state.cfg.interval * state.cfg.direction;
+  }
+  return { Detector, Smoother, cents, target, TOLERANCE };
+})();
+
+class SingingTuner {
+  constructor(audio, state) {
+    this.audio = audio; this.state = state; this.serial = 0; this.enabled = false; this.pending = false;
+    this.detector = new SingingPitch.Detector(); this.smoother = new SingingPitch.Smoother();
+    this.nodes = []; this.stream = null; this.timer = null; this.lastBeat = null; this.blockedUntil = 0;
+    this.$ = id => document.getElementById(id);
+    this.button = this.$('tuner-toggle');
+    this.button.addEventListener('click', () => this.enabled || this.pending ? this.disable() : void this.enable());
+    this.reset('Accordeur désactivé');
+  }
+  controls() {
+    this.button.textContent = this.pending ? 'Annuler' : this.enabled ? 'Couper le micro' : 'Activer le micro';
+    this.button.setAttribute('aria-pressed', String(this.enabled));
+    this.$('tuner-panel').classList.toggle('mic-on', this.enabled);
+    this.$('tuner-mic-state').textContent = this.pending ? 'AUTORISATION…' : this.enabled ? 'MICRO ACTIF' : 'MICRO COUPÉ';
+  }
+  reset(message, error = false) {
+    this.smoother.reset(); this.lastValidAt = null;
+    this.$('tuner-needle').style.opacity = '0';
+    this.$('tuner-panel').dataset.pitch = 'waiting';
+    this.$('tuner-reading').textContent = '—';
+    this.$('tuner-note').textContent = '';
+    if (this.$('tuner-status').textContent !== message) this.$('tuner-status').textContent = message;
+    this.$('tuner-status').classList.toggle('error', error);
+  }
+  async enable() {
+    if (this.pending || this.enabled) return;
+    if (!navigator.mediaDevices?.getUserMedia || window.isSecureContext === false) {
+      this.reset('Le micro est indisponible ici. Ouvrez l’application en HTTPS dans Safari, Chrome ou Firefox.', true); return;
+    }
+    const id = ++this.serial; this.pending = true; this.controls();
+    this.reset('Autorisez le microphone pour activer l’accordeur.');
+    try {
+      this.audio.microphoneActive = true;
+      await this.audio.init();
+      if (id !== this.serial) return;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: {
+        channelCount: { ideal: 1 }, echoCancellation: { ideal: true },
+        noiseSuppression: { ideal: false }, autoGainControl: { ideal: false }
+      }, video: false });
+      if (id !== this.serial || document.hidden) { stream.getTracks().forEach(t => t.stop()); if (id === this.serial) this.disable(); return; }
+      this.stream = stream;
+      const context = this.audio.ctx, source = context.createMediaStreamSource(stream);
+      this.nodes.push(source);
+      const analyser = context.createAnalyser(); this.nodes.push(analyser); analyser.fftSize = Math.min(16384, Math.max(2048, 2 ** Math.ceil(Math.log2(context.sampleRate * 0.085)))); analyser.smoothingTimeConstant = 0;
+      source.connect(analyser);
+      // The microphone graph has no connection to speakers (no feedback/monitoring).
+      this.analyser = analyser; this.buffer = new Float32Array(analyser.fftSize);
+      await context.resume();
+      if (id !== this.serial) return;
+      for (const track of stream.getTracks()) track.onended = () => {
+        if (id === this.serial) this.disable('Le microphone a été déconnecté. Vous pouvez le réactiver.', true);
+      };
+      this.pending = false; this.enabled = true; this.controls(); this.tick();
+      this.timer = setInterval(() => this.tick(), 50);
+    } catch (error) {
+      if (id !== this.serial) return;
+      const messages = {
+        NotAllowedError: 'Micro non autorisé. Autorisez-le dans les réglages du navigateur, puis réessayez.',
+        NotFoundError: 'Aucun microphone détecté. Branchez-en un, puis réessayez.',
+        NotReadableError: 'Le microphone est indisponible ou utilisé ailleurs. Réessayez après l’avoir libéré.'
+      };
+      this.disable(messages[error.name] || 'Impossible d’activer le micro. Réessayez ou ouvrez l’application dans votre navigateur.', true);
+    }
+  }
+  disable(message = 'Accordeur désactivé', error = false) {
+    ++this.serial; this.pending = false; this.enabled = false;
+    clearInterval(this.timer); this.timer = null;
+    if (this.stream) for (const track of this.stream.getTracks()) { track.onended = null; track.stop(); }
+    this.stream = null;
+    for (const node of this.nodes) try { node.disconnect(); } catch (_) {}
+    this.nodes = []; this.analyser = null; this.buffer = null; this.lastBeat = null;
+    this.audio.microphoneActive = false;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+    this.controls(); this.$('tuner-target').textContent = 'Le centre indique la note à chanter.';
+    this.reset(message, error);
+  }
+  pauseFor(seconds) {
+    this.blockedUntil = (this.audio.ctx?.currentTime || 0) + seconds;
+    if (this.enabled) this.reset('Écoutez le clavier ; l’accordeur reprend ensuite.');
+  }
+  tick() {
+    if (!this.enabled) return;
+    if (document.hidden) { this.disable(); return; }
+    const state = this.state(), now = this.audio.ctx.currentTime, event = state.displayed;
+    const beat = event?.at ?? null;
+    if (beat !== this.lastBeat) { this.smoother.reset(); this.lastValidAt = null; this.lastBeat = beat; }
+    const midi = SingingPitch.target(state, now, this.buffer.length / this.audio.ctx.sampleRate);
+    this.$('tuner-target').textContent = midi !== null && state.cfg.showNote
+      ? `Note à chanter : ${SingingCore.name(midi, true)}` : 'Le centre indique la note à chanter.';
+    if (this.audio.ctx.state !== 'running') { this.reset('Son suspendu · relancez la séance.'); return; }
+    if (!state.running) { this.reset('Micro prêt · démarrez la séance.'); return; }
+    if (state.playMode === 'model') { this.reset('Écoutez le modèle · accordeur en pause.'); return; }
+    if (now < this.blockedUntil) { this.reset('Écoutez le clavier ; l’accordeur reprend ensuite.'); return; }
+    if (midi === null) { this.reset(event?.phase === 'sing' ? 'À vous · chantez la note.' : 'Écoutez · l’accordeur attend votre réponse.'); return; }
+    if (440 * 2 ** ((midi - 69) / 12) > 2100) { this.reset('Cette note est trop aiguë pour l’accordeur. Choisissez un registre plus grave.'); return; }
+    this.analyser.getFloatTimeDomainData(this.buffer);
+    const pitch = this.detector.detect(this.buffer, this.audio.ctx.sampleRate);
+    if (!pitch) {
+      if (this.lastValidAt === null || now - this.lastValidAt > 0.12) this.reset('Chantez une note tenue, près du micro.');
+      return;
+    }
+    const rawCents = SingingPitch.cents(pitch.frequency, midi), value = this.smoother.push(rawCents);
+    if (value === null) { this.$('tuner-panel').dataset.pitch = 'waiting'; this.$('tuner-note').textContent = ''; this.$('tuner-needle').style.opacity = '0'; this.$('tuner-reading').textContent = '—'; this.$('tuner-status').textContent = 'Écoute de votre voix…'; return; }
+    this.lastValidAt = now;
+    const accurate = Math.abs(value) <= SingingPitch.TOLERANCE && Math.abs(rawCents) <= SingingPitch.TOLERANCE + 3;
+    const rounded = Math.round(value), label = accurate ? 'Juste' : value < 0 ? 'Trop grave · montez un peu' : 'Trop aigu · descendez un peu';
+    this.$('tuner-panel').dataset.pitch = accurate ? 'just' : Math.abs(value) < 40 ? 'near' : 'far';
+    const needle = this.$('tuner-needle');
+    needle.setAttribute('transform', `rotate(${Math.max(-100, Math.min(100, value)) * 0.65} 200 170)`); needle.style.opacity = '1';
+    this.$('tuner-reading').textContent = `${rounded > 0 ? '+' : ''}${rounded} cents`;
+    if (this.$('tuner-status').textContent !== label) this.$('tuner-status').textContent = label;
+    this.$('tuner-note').textContent = state.cfg.showNote ? `Voix : ${SingingCore.name(Math.round(69 + 12 * Math.log2(pitch.frequency / 440)), true)}` : '';
+  }
+}
+
+</script>
   <script>(() => {
   'use strict';
   const C = SingingCore, $ = id => document.getElementById(id), audio = new SingingAudio();
@@ -355,6 +567,7 @@ class SingingAudio {
   let playMode = 'sing';
   let keyboardBase = Math.max(24, Math.min(84, Math.floor(Math.min(cfg.low, cfg.low + cfg.interval * cfg.direction) / 12) * 12));
   let keyboardToken = 0, keyboardVoice = null, keyboardTimer = null, keyboardLastMidi = null;
+  const tuner = new SingingTuner(audio, () => ({ cfg, running, playMode, displayed }));
   const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(cfg)); } catch (_) {} };
   function status(text, error = false) { $('status').textContent = text; $('status').classList.toggle('error', error); }
   function option(value, text) { const o = document.createElement('option'); o.value = value; o.textContent = text; return o; }
@@ -390,6 +603,7 @@ class SingingAudio {
       if (!cfg.pianoVolume) { keyboardFeedback('Le volume du piano est à zéro. Montez-le pour entendre le clavier.'); return; }
       // Play immediately; the existing piano synth covers samples still loading.
       if (cfg.backend === 'samples' && !audio.loading) void audio.load(() => {}).catch(() => {});
+      tuner.pauseFor(1.6);
       keyboardVoice = audio.note(midi, audio.ctx.currentTime + 0.01, 1.4, cfg.backend);
       keyboardLastMidi = midi; key.classList.add('active');
       keyboardFeedback(cfg.showNote ? `${C.name(midi, true)} / ${C.name(midi)}` : 'Note jouée au clavier.');
@@ -476,7 +690,7 @@ class SingingAudio {
     if (audio.ctx.state !== 'running') { stop('Le son a été interrompu. Relancez la séance pour reprendre le décompte.'); return; }
     try {
       for (const beat of clock.take(audio.ctx.currentTime)) {
-        const event = { ...sequence.next(), at: beat.at };
+        const event = { ...sequence.next(), at: beat.at, duration: beat.duration };
         audio.click(beat.at, cfg.clickSound);
         const pitch = C.soundingPitch(event, cfg, playMode === 'model');
         if (pitch !== null) audio.note(pitch, beat.at, beat.duration * 0.8, cfg.backend);
@@ -493,7 +707,7 @@ class SingingAudio {
   }
   async function start(mode = 'sing') {
     if (preparing || C.validate(cfg) || (running && playMode === mode)) return;
-    if (running) stop();
+    if (running) stop(undefined, false, true);
     playMode = mode;
     previewToken++; clearKeyboard(); audio.stop();
     const id = ++token; preparing = true; sampleWarning = '';
@@ -518,8 +732,9 @@ class SingingAudio {
       timer = setInterval(schedule, 25); schedule(); raf = requestAnimationFrame(animate); keepAwake(id);
     } catch (err) { if (id === token) stop(err.message || 'Impossible de démarrer le son.', true); }
   }
-  function stop(message = 'Séance arrêtée. Le prochain départ commence par 4 clics.', error = false) {
+  function stop(message = 'Séance arrêtée. Le prochain départ commence par 4 clics.', error = false, preserveTuner = false) {
     token++; previewToken++; running = false; preparing = false;
+    if (!preserveTuner) tuner.disable();
     playMode = 'sing';
     clearInterval(timer); cancelAnimationFrame(raf); timer = null; raf = null; events = []; displayed = null;
     clearKeyboard(); audio.stop();
@@ -570,7 +785,7 @@ class SingingAudio {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (running || preparing) { e.preventDefault(); stop(); }
-      else { previewToken++; clearKeyboard(); audio.stop(); }
+      else { previewToken++; clearKeyboard(); audio.stop(); tuner.disable(); }
     }
     if (e.code !== 'Space' || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.target.closest('input,select,button,summary,textarea,[contenteditable]')) return;
@@ -579,9 +794,9 @@ class SingingAudio {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) return;
     if (running || preparing) stop('Séance arrêtée au changement d’onglet. Relancez-la pour reprendre le décompte.');
-    else { previewToken++; clearKeyboard(); audio.stop(); }
+    else { previewToken++; clearKeyboard(); audio.stop(); tuner.disable(); }
   });
-  window.addEventListener('pagehide', () => { if (running || preparing) stop(); else { previewToken++; clearKeyboard(); audio.stop(); } });
+  window.addEventListener('pagehide', () => { if (running || preparing) stop(); else { previewToken++; clearKeyboard(); audio.stop(); tuner.disable(); } });
   renderConfig(); renderKeyboard(); save();
 })();
 </script>
