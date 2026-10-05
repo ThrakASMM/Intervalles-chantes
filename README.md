@@ -12,7 +12,7 @@ Application autonome dans `index.html`, publiée sur GitHub Pages. Les sons et i
 - Écarts : maximum 1 000 points sur les 29 transitions, pondérés par la justesse. Distance entre classes de hauteurs (0–6 demi-tons) : une octave seule n’ajoute aucune difficulté lorsque l’octave est libre.
 - Notes absentes : zéro dans la note sur 20 ; écart moyen affiché calculé sur les notes détectées, avec leur nombre indiqué. Le bilan détaille les 30 réponses.
 
-Le bilan est affiché automatiquement à la fin du test ; le bouton « Voir mon dernier résultat » permet de le retrouver. Le Top 10 affiche les dix places en LED à points ambrés, avec défilement toutes les 4,5 secondes, pause, précédent/suivant et liste détaillée. Le défilement respecte la préférence de mouvement réduit.
+Le bilan est affiché automatiquement à la fin du test ; le bouton « Voir mon dernier résultat » permet de le retrouver. Le Top 10 affiche les dix places en LED à points ambrés, avec trois places visibles à la fois, un déplacement toutes les 4,5 secondes vers le bas puis vers le haut, pause, flèches et liste détaillée. La première place réelle est mise en valeur par un halo doré et une coupe en pixels animée. Le défilement respecte la préférence de mouvement réduit.
 
 Les scores des anciens tests de 20 notes restent visibles : le maximum demeure 13 000 points et la note reste sur 20. Seuls les tests complets de 30 notes peuvent désormais être publiés.
 

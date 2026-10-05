@@ -18,40 +18,69 @@ window.PinballTop = (() => {
     [...label].forEach((letter,index)=>(patterns[letter]||patterns['?']).forEach((row,y)=>[...row].forEach((pixel,x)=>{if(pixel==='1'){const px=left+index*6+x,py=y+1;path+=`M${px-.36},${py}a.36,.36 0 1,0 .72,0a.36,.36 0 1,0 -.72,0 `;}})));
     svg.append(element('path',{d:path,fill:'currentColor'}));return svg;
   }
+  function trophy() {
+    const svg=element('svg',{viewBox:'0 0 15 15','aria-hidden':'true',class:'pb-trophy'});
+    const cup=['0011111111100','1111111111111','1101111111011','1101111111011','0110111110110','0011111111100','0000111110000','0000001000000','0000011100000','0000011100000','0001111111000'];
+    let path='';cup.forEach((row,y)=>[...row].forEach((pixel,x)=>{if(pixel==='1')path+=`M${x+1} ${y+2}h.85v.85h-.85z`;}));
+    svg.append(element('path',{d:path,fill:'currentColor'}));
+    svg.append(element('path',{d:'M2 0v3M.5 1.5h3',class:'pb-spark',stroke:'currentColor','stroke-width':.65}));
+    svg.append(element('path',{d:'M13 11v3M11.5 12.5h3',class:'pb-spark pb-spark-late',stroke:'currentColor','stroke-width':.65}));
+    return svg;
+  }
   class Display {
     constructor(root,{title='TOP 10'}={}) {
-      this.root=root;this.rows=[];this.index=0;this.paused=false;this.hover=false;this.focused=false;this.visible=true;this.loading=true;
+      this.root=root;this.rows=[];this.index=0;this.direction=1;this.paused=false;this.hover=false;this.focused=false;this.visible=true;this.loading=true;
       this.motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');this.paused=!!this.motion?.matches;
       root.classList.add('pinball-top');
-      root.innerHTML='<div class="pb-cabinet"><div class="pb-heading"><span class="pb-title"></span><span class="pb-position">01 / 10</span></div><div class="pb-screen" aria-hidden="true"><div class="pb-name"></div><div class="pb-score"></div></div><p class="pb-detail"></p><p class="pb-current pb-sr-only" aria-live="off"></p></div><div class="pb-controls"><button type="button" class="pb-prev" aria-label="Score précédent">←</button><button type="button" class="pb-pause" aria-pressed="false">Pause</button><button type="button" class="pb-next" aria-label="Score suivant">→</button></div><details class="pb-all"><summary>Voir les 10 places</summary><ol></ol></details>';
+      root.innerHTML='<div class="pb-cabinet"><div class="pb-heading"><span class="pb-title"></span><span class="pb-position">01–03 / 10</span></div><div class="pb-screen" aria-hidden="true"><div class="pb-track"></div><div class="pb-message" hidden><div class="pb-message-title"></div><p></p></div></div><p class="pb-current pb-sr-only" aria-live="off"></p></div><div class="pb-controls"><button type="button" class="pb-prev" aria-label="Remonter le classement">↑</button><button type="button" class="pb-pause" aria-pressed="false">Pause</button><button type="button" class="pb-next" aria-label="Descendre le classement">↓</button></div><details class="pb-all"><summary>Voir les 10 places</summary><ol></ol></details>';
       this.$=selector=>root.querySelector(selector);this.$('.pb-title').textContent=title;
       this.$('.pb-prev').addEventListener('click',()=>this.move(-1));this.$('.pb-next').addEventListener('click',()=>this.move(1));
       this.$('.pb-pause').addEventListener('click',()=>{this.paused=!this.paused;this.controls();});
-      root.addEventListener('mouseenter',()=>this.hover=true);root.addEventListener('mouseleave',()=>this.hover=false);
-      root.addEventListener('focusin',()=>this.focused=true);root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))this.focused=false;});
+      root.addEventListener('mouseenter',()=>{this.hover=true;this.effects();});root.addEventListener('mouseleave',()=>{this.hover=false;this.effects();});
+      root.addEventListener('focusin',()=>{this.focused=true;this.effects();});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))this.focused=false;this.effects();});
       this.motionHandler=e=>{this.paused=e.matches;this.controls();};this.motion?.addEventListener?.('change',this.motionHandler);
-      if(window.IntersectionObserver){this.observer=new IntersectionObserver(entries=>{this.visible=entries[0].isIntersecting;});this.observer.observe(root);}
-      this.timer=setInterval(()=>{if(!root.isConnected){this.destroy();return;}if(!this.loading && !this.paused && !this.hover && !this.focused && this.visible && !document.hidden && !root.closest('[hidden]') && this.rows.length)this.move(1);},4500);
+      if(window.IntersectionObserver){this.observer=new IntersectionObserver(entries=>{this.visible=entries[0].isIntersecting;this.effects();});this.observer.observe(root);}
+      this.timer=setInterval(()=>{if(!root.isConnected){this.destroy();return;}this.effects();if(!this.loading && !this.paused && !this.hover && !this.focused && this.visible && !document.hidden && !root.closest('[hidden]') && this.rows.length)this.move(this.direction);},4500);
       this.setMessage('CHARGEMENT','Le classement arrive…');this.controls();
     }
-    controls(){this.$('.pb-pause').textContent=this.paused?'Défiler':'Pause';this.$('.pb-pause').setAttribute('aria-pressed',String(this.paused));for(const sel of ['.pb-prev','.pb-next','.pb-pause'])this.$(sel).disabled=this.loading;}
+    effects(){this.root.classList.toggle('pb-resting',this.paused||this.hover||this.focused||!this.visible||document.hidden||!!this.root.closest('[hidden]'));}
+    controls(){this.$('.pb-pause').textContent=this.paused?'Défiler':'Pause';this.$('.pb-pause').setAttribute('aria-pressed',String(this.paused));this.$('.pb-pause').disabled=this.loading;this.$('.pb-prev').disabled=this.loading||this.index===0;this.$('.pb-next').disabled=this.loading||this.index===7;this.effects();}
     setRows(rows) {
       const normalized=rows.slice(0,10).map(r=>({name:String(r.name||'—'),score:Math.max(0,Math.round(Number(r.score)||0)),detail:String(r.detail||'')}));
-      const signature=JSON.stringify(normalized);if(signature!==this.signature)this.index=0;this.signature=signature;this.rows=normalized;this.loading=false;
-      const list=this.$('.pb-all ol');list.replaceChildren();
-      for(let i=0;i<10;i++){const row=this.rows[i],li=document.createElement('li');li.textContent=row?`${row.name} · ${row.score.toLocaleString('fr-FR')} points${row.detail?' · '+row.detail:''}`:'Place libre';list.append(li);}
-      this.controls();this.render(false);
+      const signature=JSON.stringify(normalized),changed=signature!==this.signature;
+      if(changed){this.index=0;this.direction=1;}this.signature=signature;this.rows=normalized;this.loading=false;
+      this.$('.pb-message').hidden=true;this.$('.pb-track').hidden=false;
+      if(changed){
+        const track=this.$('.pb-track'),list=this.$('.pb-all ol');track.replaceChildren();list.replaceChildren();
+        for(let i=0;i<10;i++){
+          const row=this.rows[i],rank=String(i+1).padStart(2,'0'),item=document.createElement('div');
+          item.className='pb-row'+(i===0&&row?' pb-winner':'')+(row?'':' pb-vacant');item.dataset.rank=String(i+1);
+          const badge=document.createElement('div');badge.className='pb-rank';badge.append(matrix(rank,15));if(i===0&&row)badge.append(trophy());
+          const content=document.createElement('div');content.className='pb-player';
+          const name=document.createElement('div');name.className='pb-name';name.append(matrix(row?row.name:'PLACE LIBRE'));
+          const score=document.createElement('div');score.className='pb-score';score.append(matrix(row?String(row.score).padStart(5,'0')+' PTS':'A VOUS !',72));
+          const detail=document.createElement('p');detail.className='pb-detail';detail.textContent=row?row.detail:'Enregistre ton score';detail.title=detail.textContent;
+          content.append(name,score,detail);item.append(badge,content);track.append(item);
+          const li=document.createElement('li');li.textContent=row?`${row.name} · ${row.score.toLocaleString('fr-FR')} points${row.detail?' · '+row.detail:''}`:'Place libre';list.append(li);
+        }
+      }
+      this.render(false);
     }
-    setMessage(title,detail=''){this.loading=true;this.$('.pb-name').replaceChildren(matrix(title));this.$('.pb-score').replaceChildren(matrix('---',72));this.$('.pb-detail').textContent=detail;this.$('.pb-current').textContent=title+' · '+detail;this.$('.pb-all ol').replaceChildren();this.controls();}
-    move(delta){if(this.loading)return;this.index=(this.index+delta+10)%10;this.render(true);}
+    setMessage(title,detail=''){
+      this.loading=true;this.$('.pb-track').hidden=true;this.$('.pb-message').hidden=false;
+      this.$('.pb-message-title').replaceChildren(matrix(title));this.$('.pb-message p').textContent=detail;this.$('.pb-current').textContent=title+' · '+detail;this.controls();
+    }
+    move(delta){
+      if(this.loading)return;this.index=Math.max(0,Math.min(7,this.index+delta));
+      this.direction=this.index===7?-1:this.index===0?1:delta<0?-1:1;this.render(true);
+    }
     render(animate) {
-      const row=this.rows[this.index],rank=String(this.index+1).padStart(2,'0');
-      this.root.dataset.position=String(this.index+1);this.$('.pb-position').textContent=rank+' / 10';
-      this.$('.pb-name').replaceChildren(matrix(rank+' '+(row?row.name:'PLACE LIBRE')));
-      this.$('.pb-score').replaceChildren(matrix(row?String(row.score).padStart(5,'0')+' PTS':'A VOUS !',72));
-      this.$('.pb-detail').textContent=row?row.detail:'Enregistre un score pour prendre ta place.';
-      this.$('.pb-current').textContent=row?`Rang ${this.index+1} : ${row.name}, ${row.score} points. ${row.detail}`:`Rang ${this.index+1} : place libre.`;
-      const screen=this.$('.pb-screen');screen.classList.remove('pb-enter');if(animate && !this.motion?.matches){void screen.offsetWidth;screen.classList.add('pb-enter');}
+      this.root.dataset.position=String(this.index+1);this.root.dataset.direction=this.direction===1?'down':'up';
+      this.$('.pb-position').textContent=String(this.index+1).padStart(2,'0')+'–'+String(this.index+3).padStart(2,'0')+' / 10';
+      const track=this.$('.pb-track');track.classList.toggle('pb-moving',animate&&!this.motion?.matches);
+      track.style.transform=`translateY(-${this.index*10}%)`;
+      this.$('.pb-current').textContent=Array.from({length:3},(_,offset)=>{const i=this.index+offset,row=this.rows[i];return row?`Rang ${i+1} : ${row.name}, ${row.score} points. ${row.detail}`:`Rang ${i+1} : place libre.`;}).join(' ');
+      this.controls();
     }
     destroy(){clearInterval(this.timer);this.observer?.disconnect();this.motion?.removeEventListener?.('change',this.motionHandler);}
   }
