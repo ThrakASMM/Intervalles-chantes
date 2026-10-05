@@ -100,12 +100,12 @@ test('microphone is opt-in, never monitored to speakers; accurate, flat, sharp a
  const mic=stream();let requests=0;const h=harness(async options=>{requests++;assert.equal(options.video,false);return mic;});
  assert.equal(requests,0);assert.equal(h.audio.microphoneActive,false);
  await h.tuner.enable();assert.equal(requests,1);assert.equal(h.audio.microphoneActive,true);assert.equal(h.connections.length,1);assert.equal(h.connections[0],h.analyser);assert.equal(h.timers.size,1);
- h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');
+ h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');assert.equal(h.element('tuner-panel').dataset.side,'center');
  for(const [offset,direction] of [[-60,'Trop grave'],[60,'Trop aigu'],[1200,'Trop aigu']]){
   h.setSignal(signal(440*2**(offset/1200),48000));for(let frame=0;frame<7;frame++){h.audio.ctx.currentTime+=.05;h.tuner.tick();}
-  assert.equal(h.element('tuner-verdict').textContent,direction);assert.equal(h.element('tuner-panel').dataset.pitch,'far');
+  assert.equal(h.element('tuner-verdict').textContent,direction);assert.equal(h.element('tuner-panel').dataset.pitch,'far');assert.equal(h.element('tuner-panel').dataset.side,offset<0?'flat':'sharp');
  }
- h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');
+ h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');assert.equal(h.element('tuner-panel').dataset.side,'none');
  h.tuner.disable();assert.equal(mic.track.stops,1);assert.equal(h.timers.size,0);assert.equal(h.src.disconnected,true);assert.equal(h.analyser.disconnected,true);assert.equal(h.audio.microphoneActive,false);
  assert.equal(h.navigator.audioSession.type,'playback');
 });
