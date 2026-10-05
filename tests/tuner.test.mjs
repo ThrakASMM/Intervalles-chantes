@@ -54,22 +54,26 @@ test('pitch smoothing requires stable frames and does not pass through green on 
  assert.equal(smooth.push(1200),null);assert(smooth.push(1204)>1190);
  smooth.reset();assert.equal(smooth.push(0),null);assert.equal(smooth.push(2),2);
 });
-test('colours appear promptly but changes must persist, without leaving green on a large error',()=>{
+test('a forgiving green zone and stable graduated lights show direction and distance',()=>{
  const feedback=new Pitch.Feedback();
- assert.equal(feedback.push(0,0,.15).tone,'just','First reliable reading has no extra delay');
- assert.equal(feedback.push(16,16,.2).tone,'just');
- assert.equal(feedback.push(14,14,.25).tone,'just','A brief boundary crossing is ignored');
- assert.equal(feedback.push(17,17,.3).tone,'just');
- assert.equal(feedback.push(19,19,.35).tone,'just');
- assert.equal(feedback.push(20,20,.4).tone,'near','Persistent sharpness changes colour');
- assert.equal(feedback.current.label,'Trop aigu');
- assert.equal(feedback.push(-20,-20,.45).label,'Trop aigu');
- assert.equal(feedback.push(-20,-20,.55).label,'Trop grave','Direction also requires confirmation');
- feedback.reset();assert.equal(feedback.push(0,0,1).tone,'just');
- assert.equal(feedback.push(0,-70,1.05).tone,'far','Raw pitch clears stale green before smoothing catches up');
- assert.equal(feedback.current.label,'Trop grave');
- feedback.reset();assert.equal(feedback.push(0,22,2).tone,'near','Raw guard does not falsely show green');
- assert.equal(feedback.current.label,'Trop aigu');
+ assert.equal(feedback.push(27,27,.15).step,0,'First reliable reading appears immediately, with wider tolerance');
+ assert.equal(feedback.push(36,36,.2).step,0,'Small fluctuations keep the centre lit');
+ assert.equal(feedback.push(42,42,.25).step,0);
+ assert.equal(feedback.push(35,35,.3).step,0,'Brief boundary crossing is ignored');
+ assert.equal(feedback.push(45,45,.35).step,0);
+ assert.equal(feedback.push(45,45,.45).step,0);
+ assert.equal(feedback.push(45,45,.5).step,1,'Persistent sharpness moves one light right');
+ assert.equal(feedback.push(63,63,.55).step,1,'Neighbouring light has hysteresis');
+ assert.equal(feedback.push(75,75,.6).step,1);
+ assert.equal(feedback.push(75,75,.75).step,2,'Larger error moves farther right, with same near colour');
+ assert.equal(feedback.push(-75,-75,.8).step,2);
+ assert.equal(feedback.push(-75,-75,.95).step,-2,'A confirmed correction to the other side moves left');
+ feedback.reset();assert.equal(feedback.push(0,0,1).step,0);
+ assert.equal(feedback.push(0,-150,1.05).step,-3,'Large raw error clears stale green before smoothing catches up');
+ feedback.reset();assert.equal(feedback.push(0,45,2).step,1,'Raw guard does not falsely show green');
+ for(const [offset,step] of [[-500,-4],[-150,-3],[-80,-2],[-45,-1],[0,0],[45,1],[80,2],[150,3],[500,4]]){
+  feedback.reset();assert.equal(feedback.push(offset,offset,3).step,step);
+ }
  feedback.reset();assert.equal(feedback.current,null);
 });
 test('all embedded scripts parse and tuner controls have unique DOM IDs',()=>{
@@ -100,12 +104,12 @@ test('microphone is opt-in, never monitored to speakers; accurate, flat, sharp a
  const mic=stream();let requests=0;const h=harness(async options=>{requests++;assert.equal(options.video,false);return mic;});
  assert.equal(requests,0);assert.equal(h.audio.microphoneActive,false);
  await h.tuner.enable();assert.equal(requests,1);assert.equal(h.audio.microphoneActive,true);assert.equal(h.connections.length,1);assert.equal(h.connections[0],h.analyser);assert.equal(h.timers.size,1);
- h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');assert.equal(h.element('tuner-panel').dataset.side,'center');
- for(const [offset,direction] of [[-60,'Trop grave'],[60,'Trop aigu'],[1200,'Trop aigu']]){
+ h.tuner.tick();assert.equal(h.element('tuner-panel').dataset.pitch,'just');assert.equal(h.element('tuner-verdict').textContent,'Juste');assert.equal(h.element('tuner-panel').dataset.side,'center');assert.equal(h.element('tuner-panel').dataset.step,'0');
+ for(const [offset,direction] of [[-150,'Trop grave'],[150,'Trop aigu'],[1200,'Trop aigu']]){
   h.setSignal(signal(440*2**(offset/1200),48000));for(let frame=0;frame<7;frame++){h.audio.ctx.currentTime+=.05;h.tuner.tick();}
   assert.equal(h.element('tuner-verdict').textContent,direction);assert.equal(h.element('tuner-panel').dataset.pitch,'far');assert.equal(h.element('tuner-panel').dataset.side,offset<0?'flat':'sharp');
  }
- h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');assert.equal(h.element('tuner-panel').dataset.side,'none');
+ h.setSignal(new Float32Array(4096));h.audio.ctx.currentTime+=.2;h.tuner.tick();assert.equal(h.element('tuner-verdict').textContent,'En attente');assert.equal(h.element('tuner-panel').dataset.pitch,'waiting');assert.equal(h.element('tuner-panel').dataset.side,'none');assert.equal(h.element('tuner-panel').dataset.step,'none');
  h.tuner.disable();assert.equal(mic.track.stops,1);assert.equal(h.timers.size,0);assert.equal(h.src.disconnected,true);assert.equal(h.analyser.disconnected,true);assert.equal(h.audio.microphoneActive,false);
  assert.equal(h.navigator.audioSession.type,'playback');
 });
