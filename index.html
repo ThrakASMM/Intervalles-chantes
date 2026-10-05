@@ -108,7 +108,7 @@
     </section>
     <section class="card test-launch" aria-labelledby="test-title">
       <div class="test-launch-heading"><div><h2 id="test-title">Test de 30 notes</h2><p class="small dim">L’intervalle, le sens, le niveau et le tempo choisis ci-dessus · octave libre.</p></div><button type="button" class="validate-btn" id="test-start">🏆 Lancer le test</button></div><div class="test-shortcuts"><button type="button" class="ctrl-btn white small" id="last-result" hidden>Voir mon dernier résultat</button><a class="ctrl-btn white small" href="#test-top">Voir le Top 10 LED</a></div>
-      <details><summary>Comment est calculé le score ?</summary><p>La justesse moyenne rapporte jusqu’à 10 000 points. La zone juste est de ±30 cents (environ un tiers de demi-ton). Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
+      <details><summary>Comment est calculé le score ?</summary><p>La justesse rapporte jusqu’à 10 000 points. Le test retient une courte portion stable de votre note : une attaque hésitante ne pénalise pas la justesse si la note est ensuite bien posée. La tolérance est de ±45 cents, soit un peu moins d’un demi-ton, pour tous les intervalles. Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
     </section>
       </div>
       <aside class="test-top" id="test-top" aria-labelledby="test-top-title"><header class="test-top-heading"><span class="test-top-icon" aria-hidden="true">🏆</span><div><p class="test-top-eyebrow">LES SCORES</p><h2 id="test-top-title">Top 10 · Intervalles</h2></div><button type="button" class="test-top-refresh" id="top-refresh" aria-label="Actualiser le classement" title="Actualiser le classement">↻</button></header><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Un Top par intervalle et par sens. Chaque pseudo conserve sa meilleure tentative, sans remise à zéro hebdomadaire.</p></aside>
@@ -155,7 +155,7 @@
     </section>
     <section class="card test-result" id="test-result" hidden aria-labelledby="test-result-title">
       <h2 id="test-result-title" tabindex="-1">Résultat du test</h2>
-      <div class="test-metrics"><div><small>Score total</small><strong id="test-score"></strong></div><div><small>Justesse sur les 30 notes</small><strong id="test-grade"></strong></div><div><small>Écart moyen des notes entendues</small><strong id="test-precision"></strong></div><div><small>Vitesse des réponses justes</small><strong id="test-speed"></strong></div></div>
+      <div class="test-metrics"><div><small>Score total</small><strong id="test-score"></strong></div><div><small>Justesse sur les 30 notes</small><strong id="test-grade"></strong></div><div><small id="test-precision-label">Écart moyen des notes posées</small><strong id="test-precision"></strong></div><div><small>Vitesse des réponses justes</small><strong id="test-speed"></strong></div></div>
       <p class="small" id="test-breakdown"></p><details class="test-details"><summary>Voir les 30 notes</summary><ol id="test-note-results" style="list-style:none;padding-left:0"></ol></details>
       <div class="test-save-form"><label for="test-name">Pseudo<input id="test-name" maxlength="16" autocomplete="nickname" placeholder="Ton pseudo"></label><button type="button" class="validate-btn" id="test-save">Enregistrer mon score en ligne</button></div>
       <p class="test-save-note">Un seul pseudo par profil, une seule place par Top : ton meilleur score. Le pseudo est fixé au premier enregistrement. Ton pseudo et tes résultats seront publics ; aucun son de ta voix n’est enregistré ni envoyé.</p>
@@ -441,7 +441,8 @@ class SingingAudio {
 <script>
 /* Shared scoring rules: browser and server use this exact module. No audio is uploaded. */
 const SingingScore = (() => {
-  const ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
+  const ID = 'singing-30-v2', PREVIOUS_ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
+  const TOLERANCE = 45;
   const gaps = {close:[1,4],medium:[5,9],wide:[10,24],free:[1,60]};
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const octaveCents = value => ((value + 600) % 1200 + 1200) % 1200 - 600;
@@ -451,7 +452,7 @@ const SingingScore = (() => {
       !Number.isInteger(raw.low) || !Number.isInteger(raw.high) || raw.low<36 || raw.high>96 || raw.low>=raw.high || raw.high-raw.low<gaps[raw.difficulty][0]) throw new Error('Réglages du test invalides.');
     return {interval:raw.interval,direction:raw.direction,tempo:raw.tempo,difficulty:raw.difficulty,low:raw.low,high:raw.high};
   }
-  function noteResult(note, cfg, previous, total) {
+  function legacyNoteResult(note, cfg, previous, total) {
     const duration=60000/cfg.tempo, frames=note.samples;
     if (!Number.isInteger(note.midi) || note.midi<cfg.low || note.midi>cfg.high || !Array.isArray(frames) || frames.length>Math.ceil(duration/35)) throw new Error('Mesures du test invalides.');
     if (previous!==null) {const gap=Math.abs(note.midi-previous);if(gap<gaps[cfg.difficulty][0] || gap>gaps[cfg.difficulty][1])throw new Error('Écarts du test invalides.');}
@@ -480,10 +481,44 @@ const SingingScore = (() => {
     return {midi:note.midi,meanCents,quality,seconds,effectiveGap,
       accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),gapPoints:quality*effectiveGap/6*(1000/(total-1))};
   }
-  function evaluateForTotal(rawConfig, notes, total) {
+  function noteResult(note, cfg, previous, total) {
+    // Keep validation and old saved results unchanged. Only the new ruleset
+    // grades the settled voice, independently of its initial attack.
+    const original=legacyNoteResult(note,cfg,previous,total),frames=note.samples;
+    const duration=60000/cfg.tempo;
+    // At the fastest tempos the response beat only permits about 100 ms.
+    const hold=Math.min(150,Math.max(90,duration-200));
+    let best=null,found=null;
+    for(let start=0;start<frames.length;start++) {
+      let sum=0,low=Infinity,high=-Infinity;
+      for(let end=start;end<frames.length;end++) {
+        const frame=frames[end];
+        if(end>start && frame.t-frames[end-1].t>85)break;
+        low=Math.min(low,frame.c);high=Math.max(high,frame.c);
+        if(high-low>70)break; // A passing slide is not a settled note.
+        sum+=Math.abs(frame.c);
+        if(end-start>=2 && frame.t-frames[start].t>=hold) {
+          const mean=sum/(end-start+1);
+          if(best===null || mean<best)best=mean;
+          if(found===null && mean<=TOLERANCE)found=frames[start].t;
+          break;
+        }
+      }
+    }
+    const meanCents=best??original.meanCents;
+    const coverage=best===null?Math.min(.75,frames.length/3):1;
+    const quality=meanCents===null?0:clamp((100-meanCents)/(100-TOLERANCE),0,1)*coverage;
+    const seconds=found===null?null:(duration+found)/1000;
+    const speed=seconds===null?0:clamp((2.5-seconds)/2.1,0,1);
+    return {...original,meanCents,quality,seconds,settled:best!==null,
+      accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),
+      gapPoints:quality*original.effectiveGap/6*(1000/(total-1))};
+  }
+  function evaluateForTotal(rawConfig, notes, total, legacy=false) {
     const cfg=config(rawConfig);
     if (!Array.isArray(notes) || notes.length!==total) throw new Error(`Le test doit comporter ${total} notes terminées.`);
-    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null,total));
+    const measure=legacy?legacyNoteResult:noteResult;
+    const results=notes.map((note,i)=>measure(note,cfg,i?notes[i-1].midi:null,total));
     const sum=key=>results.reduce((n,r)=>n+(r[key]||0),0);
     const accuracy=Math.round(sum('accuracyPoints')),speed=Math.round(sum('speedPoints')),gaps=Math.round(sum('gapPoints'));
     const voiced=results.filter(n=>n.meanCents!==null),timed=results.filter(n=>n.seconds!==null);
@@ -494,7 +529,8 @@ const SingingScore = (() => {
   }
   const evaluate = (cfg, notes) => evaluateForTotal(cfg, notes, TOTAL);
   function restore(payload) {
-    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20);
+    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20,true);
+    if(payload.ruleset===PREVIOUS_ID)return evaluateForTotal(payload.config,payload.notes,30,true);
     if(payload.ruleset!==ID)throw new Error('Ancien barème incompatible.');
     return evaluate(payload.config,payload.notes);
   }
@@ -509,7 +545,7 @@ const SingingScore = (() => {
     }
     result() {return evaluate(this.cfg,this.notes);}
   }
-  return {ID,LEGACY_ID,TOTAL,config,evaluate,restore,Capture,octaveCents};
+  return {ID,PREVIOUS_ID,LEGACY_ID,TOTAL,TOLERANCE,config,evaluate,restore,Capture,octaveCents};
 })();
 
 </script>
@@ -561,15 +597,16 @@ class SingingTestUI {
     this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · ${metrics.total} notes terminées`;
     this.$('test-score').textContent=metrics.score.toLocaleString('fr-FR')+' pts';
     this.$('test-grade').textContent=metrics.grade+'/20';
+    this.$('test-precision-label').textContent=legacy?'Écart moyen des notes entendues':'Écart moyen des notes posées';
     this.$('test-precision').textContent=metrics.meanCents===null?'Aucune note détectée':`${metrics.meanCents} cents · ${metrics.heard}/${metrics.total} entendues`;
     this.$('test-speed').textContent=metrics.averageSeconds===null?'Aucune réponse stabilisée':`${metrics.averageSeconds} s depuis le piano`;
     this.$('test-breakdown').textContent=`Justesse : ${metrics.accuracy} pts · Rapidité : ${metrics.speed} pts · Écarts : ${metrics.gaps} pts`;
     const rows=this.$('test-note-results');rows.replaceChildren();
-    metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
+    metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen${!legacy && !n.settled?' · note non stabilisée':''}`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
     const profile=this.read(this.profileKey)||{};
     this.$('test-name').value=profile.name||payload.name||'';this.$('test-name').readOnly=!!profile.name;
     this.$('test-save').disabled=saved||legacy;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
-    this.$('test-save-status').textContent=legacy?'Ancien test de 20 notes conservé. Lance un test de 30 notes pour enregistrer un nouveau score.':saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
+    this.$('test-save-status').textContent=legacy?`Ancien test de ${metrics.total} notes conservé avec son barème d’origine. Lance un nouveau test pour profiter de la notation plus souple.`:saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
     try{this.write(this.resultKey,this.pending);}catch{this.$('test-save-status').textContent='Résultat disponible ici. Le stockage local est bloqué : garde cette page ouverte.';}
     this.select(payload.config);
   }
@@ -699,7 +736,7 @@ window.PinballTop = (() => {
 <script>
 /* Optional microphone tuner. Audio stays in memory; no recording or network upload. */
 const SingingPitch = (() => {
-  const TOLERANCE = 30;
+  const TOLERANCE = SingingScore.TOLERANCE;
   const cents = (frequency, midi) => { const raw = 1200 * Math.log2(frequency / (440 * 2 ** ((midi - 69) / 12))); return ((raw + 600) % 1200 + 1200) % 1200 - 600; };
   class Detector {
     constructor() { this.samples = new Float32Array(8192); this.difference = new Float32Array(4096); }

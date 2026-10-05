@@ -1,6 +1,7 @@
 /* Shared scoring rules: browser and server use this exact module. No audio is uploaded. */
 const SingingScore = (() => {
-  const ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
+  const ID = 'singing-30-v2', PREVIOUS_ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
+  const TOLERANCE = 45;
   const gaps = {close:[1,4],medium:[5,9],wide:[10,24],free:[1,60]};
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const octaveCents = value => ((value + 600) % 1200 + 1200) % 1200 - 600;
@@ -10,7 +11,7 @@ const SingingScore = (() => {
       !Number.isInteger(raw.low) || !Number.isInteger(raw.high) || raw.low<36 || raw.high>96 || raw.low>=raw.high || raw.high-raw.low<gaps[raw.difficulty][0]) throw new Error('Réglages du test invalides.');
     return {interval:raw.interval,direction:raw.direction,tempo:raw.tempo,difficulty:raw.difficulty,low:raw.low,high:raw.high};
   }
-  function noteResult(note, cfg, previous, total) {
+  function legacyNoteResult(note, cfg, previous, total) {
     const duration=60000/cfg.tempo, frames=note.samples;
     if (!Number.isInteger(note.midi) || note.midi<cfg.low || note.midi>cfg.high || !Array.isArray(frames) || frames.length>Math.ceil(duration/35)) throw new Error('Mesures du test invalides.');
     if (previous!==null) {const gap=Math.abs(note.midi-previous);if(gap<gaps[cfg.difficulty][0] || gap>gaps[cfg.difficulty][1])throw new Error('Écarts du test invalides.');}
@@ -39,10 +40,44 @@ const SingingScore = (() => {
     return {midi:note.midi,meanCents,quality,seconds,effectiveGap,
       accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),gapPoints:quality*effectiveGap/6*(1000/(total-1))};
   }
-  function evaluateForTotal(rawConfig, notes, total) {
+  function noteResult(note, cfg, previous, total) {
+    // Keep validation and old saved results unchanged. Only the new ruleset
+    // grades the settled voice, independently of its initial attack.
+    const original=legacyNoteResult(note,cfg,previous,total),frames=note.samples;
+    const duration=60000/cfg.tempo;
+    // At the fastest tempos the response beat only permits about 100 ms.
+    const hold=Math.min(150,Math.max(90,duration-200));
+    let best=null,found=null;
+    for(let start=0;start<frames.length;start++) {
+      let sum=0,low=Infinity,high=-Infinity;
+      for(let end=start;end<frames.length;end++) {
+        const frame=frames[end];
+        if(end>start && frame.t-frames[end-1].t>85)break;
+        low=Math.min(low,frame.c);high=Math.max(high,frame.c);
+        if(high-low>70)break; // A passing slide is not a settled note.
+        sum+=Math.abs(frame.c);
+        if(end-start>=2 && frame.t-frames[start].t>=hold) {
+          const mean=sum/(end-start+1);
+          if(best===null || mean<best)best=mean;
+          if(found===null && mean<=TOLERANCE)found=frames[start].t;
+          break;
+        }
+      }
+    }
+    const meanCents=best??original.meanCents;
+    const coverage=best===null?Math.min(.75,frames.length/3):1;
+    const quality=meanCents===null?0:clamp((100-meanCents)/(100-TOLERANCE),0,1)*coverage;
+    const seconds=found===null?null:(duration+found)/1000;
+    const speed=seconds===null?0:clamp((2.5-seconds)/2.1,0,1);
+    return {...original,meanCents,quality,seconds,settled:best!==null,
+      accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),
+      gapPoints:quality*original.effectiveGap/6*(1000/(total-1))};
+  }
+  function evaluateForTotal(rawConfig, notes, total, legacy=false) {
     const cfg=config(rawConfig);
     if (!Array.isArray(notes) || notes.length!==total) throw new Error(`Le test doit comporter ${total} notes terminées.`);
-    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null,total));
+    const measure=legacy?legacyNoteResult:noteResult;
+    const results=notes.map((note,i)=>measure(note,cfg,i?notes[i-1].midi:null,total));
     const sum=key=>results.reduce((n,r)=>n+(r[key]||0),0);
     const accuracy=Math.round(sum('accuracyPoints')),speed=Math.round(sum('speedPoints')),gaps=Math.round(sum('gapPoints'));
     const voiced=results.filter(n=>n.meanCents!==null),timed=results.filter(n=>n.seconds!==null);
@@ -53,7 +88,8 @@ const SingingScore = (() => {
   }
   const evaluate = (cfg, notes) => evaluateForTotal(cfg, notes, TOTAL);
   function restore(payload) {
-    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20);
+    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20,true);
+    if(payload.ruleset===PREVIOUS_ID)return evaluateForTotal(payload.config,payload.notes,30,true);
     if(payload.ruleset!==ID)throw new Error('Ancien barème incompatible.');
     return evaluate(payload.config,payload.notes);
   }
@@ -68,5 +104,5 @@ const SingingScore = (() => {
     }
     result() {return evaluate(this.cfg,this.notes);}
   }
-  return {ID,LEGACY_ID,TOTAL,config,evaluate,restore,Capture,octaveCents};
+  return {ID,PREVIOUS_ID,LEGACY_ID,TOTAL,TOLERANCE,config,evaluate,restore,Capture,octaveCents};
 })();

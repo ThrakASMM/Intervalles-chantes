@@ -43,15 +43,16 @@ class SingingTestUI {
     this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · ${metrics.total} notes terminées`;
     this.$('test-score').textContent=metrics.score.toLocaleString('fr-FR')+' pts';
     this.$('test-grade').textContent=metrics.grade+'/20';
+    this.$('test-precision-label').textContent=legacy?'Écart moyen des notes entendues':'Écart moyen des notes posées';
     this.$('test-precision').textContent=metrics.meanCents===null?'Aucune note détectée':`${metrics.meanCents} cents · ${metrics.heard}/${metrics.total} entendues`;
     this.$('test-speed').textContent=metrics.averageSeconds===null?'Aucune réponse stabilisée':`${metrics.averageSeconds} s depuis le piano`;
     this.$('test-breakdown').textContent=`Justesse : ${metrics.accuracy} pts · Rapidité : ${metrics.speed} pts · Écarts : ${metrics.gaps} pts`;
     const rows=this.$('test-note-results');rows.replaceChildren();
-    metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
+    metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen${!legacy && !n.settled?' · note non stabilisée':''}`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
     const profile=this.read(this.profileKey)||{};
     this.$('test-name').value=profile.name||payload.name||'';this.$('test-name').readOnly=!!profile.name;
     this.$('test-save').disabled=saved||legacy;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
-    this.$('test-save-status').textContent=legacy?'Ancien test de 20 notes conservé. Lance un test de 30 notes pour enregistrer un nouveau score.':saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
+    this.$('test-save-status').textContent=legacy?`Ancien test de ${metrics.total} notes conservé avec son barème d’origine. Lance un nouveau test pour profiter de la notation plus souple.`:saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
     try{this.write(this.resultKey,this.pending);}catch{this.$('test-save-status').textContent='Résultat disponible ici. Le stockage local est bloqué : garde cette page ouverte.';}
     this.select(payload.config);
   }

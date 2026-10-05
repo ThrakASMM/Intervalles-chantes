@@ -5,7 +5,8 @@ import {runInNewContext,Script} from 'node:vm';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 const source=scripts.find(s=>s.includes('const SingingPitch ='));
-const {Pitch,Tuner}=runInNewContext(source+'\n({Pitch:SingingPitch,Tuner:SingingTuner})');
+const scoreSource=readFileSync(new URL('../src/test-score.js',import.meta.url),'utf8');
+const {Pitch,Tuner}=runInNewContext(scoreSource+'\n'+source+'\n({Pitch:SingingPitch,Tuner:SingingTuner})');
 const hz=m=>440*2**((m-69)/12);
 function signal(f,rate,{harmonics=[1],noise=0,level=.2,dc=0}={}){
  let seed=321;return Float32Array.from({length:Math.max(2048,2**Math.ceil(Math.log2(rate*.085)))},(_,i)=>{
@@ -60,9 +61,9 @@ test('a forgiving green zone and stable graduated lights show direction and dist
  assert.equal(feedback.push(36,36,.2).step,0,'Small fluctuations keep the centre lit');
  assert.equal(feedback.push(42,42,.25).step,0);
  assert.equal(feedback.push(35,35,.3).step,0,'Brief boundary crossing is ignored');
- assert.equal(feedback.push(45,45,.35).step,0);
- assert.equal(feedback.push(45,45,.45).step,0);
- assert.equal(feedback.push(45,45,.5).step,1,'Persistent sharpness moves one light right');
+ assert.equal(feedback.push(60,60,.35).step,0);
+ assert.equal(feedback.push(60,60,.45).step,0);
+ assert.equal(feedback.push(60,60,.5).step,1,'Persistent sharpness moves one light right');
  assert.equal(feedback.push(63,63,.55).step,1,'Neighbouring light has hysteresis');
  assert.equal(feedback.push(75,75,.6).step,1);
  assert.equal(feedback.push(75,75,.75).step,2,'Larger error moves farther right, with same near colour');
@@ -70,8 +71,8 @@ test('a forgiving green zone and stable graduated lights show direction and dist
  assert.equal(feedback.push(-75,-75,.95).step,-2,'A confirmed correction to the other side moves left');
  feedback.reset();assert.equal(feedback.push(0,0,1).step,0);
  assert.equal(feedback.push(0,-150,1.05).step,-3,'Large raw error clears stale green before smoothing catches up');
- feedback.reset();assert.equal(feedback.push(0,45,2).step,1,'Raw guard does not falsely show green');
- for(const [offset,step] of [[-500,-4],[-150,-3],[-80,-2],[-45,-1],[0,0],[45,1],[80,2],[150,3],[500,4]]){
+ feedback.reset();assert.equal(feedback.push(0,60,2).step,1,'Raw guard does not falsely show green');
+ for(const [offset,step] of [[-500,-4],[-150,-3],[-80,-2],[-60,-1],[0,0],[60,1],[80,2],[150,3],[500,4]]){
   feedback.reset();assert.equal(feedback.push(offset,offset,3).step,step);
  }
  feedback.reset();assert.equal(feedback.current,null);
@@ -94,7 +95,7 @@ function harness(getUserMedia) {
  const audio={microphoneActive:false,ctx:{currentTime:.2,sampleRate:48000,state:'running',destination:{},resume:async()=>{},createMediaStreamSource:()=>src,createAnalyser:()=>analyser},init:async()=>{}};
  const navigator={mediaDevices:{getUserMedia},audioSession:{type:'auto'}};
  const document={hidden:false,getElementById:element};
- const Klass=runInNewContext(source+'\nSingingTuner',{document,window:{isSecureContext:true},navigator,SingingCore:{name:n=>'note-'+n},setInterval:fn=>{timers.set(++timerId,fn);return timerId;},clearInterval:id=>timers.delete(id)});
+ const Klass=runInNewContext(scoreSource+'\n'+source+'\nSingingTuner',{document,window:{isSecureContext:true},navigator,SingingCore:{name:n=>'note-'+n},setInterval:fn=>{timers.set(++timerId,fn);return timerId;},clearInterval:id=>timers.delete(id)});
  const tuner=new Klass(audio,()=>state);
  return {tuner,audio,state,navigator,document,element,connections,timers,src,analyser,setSignal:value=>samples=value};
 }

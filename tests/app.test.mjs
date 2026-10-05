@@ -14,7 +14,7 @@ async function harness({deny=false,offline=false,stored=null}={}){
  w.fetch=async(url,options={})=>{
   requests.push({url,options});if(state.offline)throw new w.TypeError('offline');
   const u=new URL(url),body=options.body?JSON.parse(options.body):null;
-  return{ok:true,json:async()=>body?{ruleset:'singing-30-v1',name:body.name,playerId:'local-test',rows:[]}:{ruleset:'singing-30-v1',interval:Number(u.searchParams.get('interval')),direction:Number(u.searchParams.get('direction')),rows:[],participants:0}};
+  return{ok:true,json:async()=>body?{ruleset:'singing-30-v2',name:body.name,playerId:'local-test',rows:[]}:{ruleset:'singing-30-v2',interval:Number(u.searchParams.get('interval')),direction:Number(u.searchParams.get('direction')),rows:[],participants:0}};
  };
  if(stored)w.localStorage.setItem('asmm.singing.result.v1',JSON.stringify(stored));
  const fakeAudio=`class SingingAudio {
@@ -89,4 +89,17 @@ test('old 20-note result is readable after reload, with new submission disabled'
  try{h.$('test-start').click();await flush();await h.advance(48.3);stored=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1'));}finally{h.close();}
  stored.payload.notes=stored.payload.notes.slice(0,20);stored.payload.ruleset='singing-20-v1';stored.payload.duration=33;
  const old=await harness({stored});try{assert.equal(old.$('test-note-results').children.length,20);assert.equal(old.$('test-grade').textContent,'20/20');assert(old.$('test-save').disabled);assert.match(old.$('test-save-status').textContent,/Ancien test de 20/);}finally{old.close();}
+});
+
+
+test('old 30-note results retain their score and explain the new scoring before another run',async()=>{
+ const h=await harness();let stored;
+ try{h.$('test-start').click();await flush();await h.advance(48.3);stored=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1'));}finally{h.close();}
+ stored.payload.ruleset='singing-30-v1';
+ for(const note of stored.payload.notes)for(const frame of note.samples)frame.c=65;
+ const old=await harness({stored});try{
+  assert.equal(old.$('test-grade').textContent,'10/20');assert(old.$('test-save').disabled);
+  assert.match(old.$('test-save-status').textContent,/barème d’origine/);
+  assert.match(old.$('test-precision-label').textContent,/entendues/);
+ }finally{old.close();}
 });
