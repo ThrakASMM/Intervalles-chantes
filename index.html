@@ -46,6 +46,22 @@
 
 .test-launch{margin:0 0 14px;background:#f2f6ff;border-color:#c8d9fa}.test-launch-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.test-launch h2{margin:0 0 5px}.test-launch p{margin:0}.test-launch button{min-height:46px}.test-progress{text-align:center;font-size:.85rem;font-weight:750;color:#0756d6;min-height:1.3em;margin:6px 0 12px}
 .test-result{margin:16px 0}.test-result[hidden]{display:none}.test-result h2{font-size:1.1rem}.test-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.test-metrics div{border-radius:9px;background:#f3f6fb;padding:12px}.test-metrics small{display:block;color:#586780;margin-bottom:5px}.test-metrics strong{font-size:1.15rem}.test-metrics div:first-child strong{font-size:1.65rem;color:#0756d6}.test-details{font-size:.82rem;line-height:1.8}.test-save-form{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:16px}.test-save-form label{flex:1;min-width:140px}.test-save-form input{display:block;width:100%;padding:10px;margin-top:5px;border:1px solid #bcc8dc;border-radius:7px}.test-save-form button{min-height:44px}.test-save-note{font-size:.74rem;color:#5d6880;line-height:1.5}.test-top{margin:16px 0}.test-top-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.test-top-filters label{flex:1;min-width:130px}.test-top-filters select{display:block;width:100%;padding:9px;margin-top:5px}.test-top-list{list-style:none;padding:0;margin:12px 0}.test-top-list li{display:grid;grid-template-columns:26px 1fr auto;gap:8px;padding:12px 0;border-top:1px solid #e0e6ef;align-items:center}.test-top-list li>b{color:#8491a5}.test-top-list li>small{grid-column:2/-1;color:#61718a;line-height:1.5}.test-top-list .top-empty{display:block;color:#61718a}.test-launch details{margin-top:12px;font-size:.8rem;line-height:1.5}.test-launch details p{margin:8px 0}button:disabled{cursor:default;opacity:.5}
+.test-shortcuts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.test-shortcuts a{text-decoration:none}.test-result{scroll-margin-top:20px}.test-result h2:focus{outline:none}
+/* BEGIN pinball-top */
+.pinball-top{margin:14px 0;min-width:0;color:#ffd086;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.pb-cabinet{padding:14px 13px 10px;border:4px solid #47362a;border-radius:13px;background:linear-gradient(135deg,#241e18,#121110);box-shadow:inset 0 0 0 1px #98725055,0 5px 12px #0002}
+.pb-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 12px;font-size:.65rem;font-weight:800;letter-spacing:.16em;color:#e4ae68}.pb-position{white-space:nowrap;letter-spacing:.08em}
+.pb-screen{padding:10px 7px 7px;border:1px solid #442714;border-radius:6px;background:#100905;box-shadow:inset 0 0 18px #000;overflow:hidden;color:#ffad3d}
+.pb-screen svg{display:block;width:100%;height:auto;max-height:62px;filter:drop-shadow(0 0 2px #ff871d70)}.pb-name svg{margin:0 0 12px;min-height:21px}.pb-score svg{width:88%;margin:auto}
+.pb-detail{color:#c7a881!important;text-align:center;font:500 .7rem/1.55 system-ui,sans-serif;min-height:2.9em;margin:10px 0 0!important}
+.pb-controls{display:flex;gap:9px;justify-content:center;margin-top:10px}.pb-controls button{appearance:none;border:1px solid #b9a07d;background:#f8f1e8;color:#624622;border-radius:7px;padding:6px 14px;min-width:42px;min-height:36px;font:650 .78rem system-ui;cursor:pointer}.pb-controls button:hover{background:#f1dfc7}.pb-controls button:focus-visible{outline:3px solid #0a66ff;outline-offset:2px}.pb-controls button:disabled{opacity:.45;cursor:default}.pb-pause{min-width:88px!important}
+.pb-all{font:400 .75rem/1.6 system-ui,sans-serif;color:#5e6676;margin-top:10px}.pb-all summary{cursor:pointer}.pb-all ol{padding-left:23px;margin:9px 0}.pb-all li{padding:5px 0;border-bottom:1px solid #e8e5e0;overflow-wrap:anywhere}
+.pb-sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.pb-enter{animation:pb-arrive .4s ease-out}@keyframes pb-arrive{from{transform:translateY(7px);opacity:.45}to{transform:translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.pb-enter{animation:none}}
+@media(max-width:420px){.pb-cabinet{padding:12px 8px 8px}.pb-screen{padding:9px 4px}.pb-heading{font-size:.6rem}.pb-controls button{padding:6px 11px}}
+
+/* END pinball-top */
 </style>
 </head>
 <body>
@@ -69,7 +85,7 @@
       <p class="dim small tempo-help">Modifiable pendant l’exercice · une nouvelle note toutes les <strong id="note-rate">1,5 s</strong></p>
     </section>
     <section class="card test-launch" aria-labelledby="test-title">
-      <div class="test-launch-heading"><div><h2 id="test-title">Test de 20 notes</h2><p class="small dim">L’intervalle, le sens, le niveau et le tempo choisis ci-dessus · octave libre.</p></div><button type="button" class="validate-btn" id="test-start">🏆 Lancer le test</button></div>
+      <div class="test-launch-heading"><div><h2 id="test-title">Test de 30 notes</h2><p class="small dim">L’intervalle, le sens, le niveau et le tempo choisis ci-dessus · octave libre.</p></div><button type="button" class="validate-btn" id="test-start">🏆 Lancer le test</button></div><div class="test-shortcuts"><button type="button" class="ctrl-btn white small" id="last-result" hidden>Voir mon dernier résultat</button><a class="ctrl-btn white small" href="#test-top">Voir le Top 10 LED ↓</a></div>
       <details><summary>Comment est calculé le score ?</summary><p>La justesse moyenne rapporte jusqu’à 10 000 points. La zone juste est de ±30 cents (environ un tiers de demi-ton). Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
     </section>
     <section class="exercise" aria-label="Exercice au métronome">
@@ -113,9 +129,9 @@
       </section>
     </section>
     <section class="card test-result" id="test-result" hidden aria-labelledby="test-result-title">
-      <h2 id="test-result-title">Résultat du test</h2>
-      <div class="test-metrics"><div><small>Score total</small><strong id="test-score"></strong></div><div><small>Justesse sur les 20 notes</small><strong id="test-grade"></strong></div><div><small>Écart moyen des notes entendues</small><strong id="test-precision"></strong></div><div><small>Vitesse des réponses justes</small><strong id="test-speed"></strong></div></div>
-      <p class="small" id="test-breakdown"></p><details class="test-details"><summary>Voir les 20 notes</summary><ol id="test-note-results" style="list-style:none;padding-left:0"></ol></details>
+      <h2 id="test-result-title" tabindex="-1">Résultat du test</h2>
+      <div class="test-metrics"><div><small>Score total</small><strong id="test-score"></strong></div><div><small>Justesse sur les 30 notes</small><strong id="test-grade"></strong></div><div><small>Écart moyen des notes entendues</small><strong id="test-precision"></strong></div><div><small>Vitesse des réponses justes</small><strong id="test-speed"></strong></div></div>
+      <p class="small" id="test-breakdown"></p><details class="test-details"><summary>Voir les 30 notes</summary><ol id="test-note-results" style="list-style:none;padding-left:0"></ol></details>
       <div class="test-save-form"><label for="test-name">Pseudo<input id="test-name" maxlength="16" autocomplete="nickname" placeholder="Ton pseudo"></label><button type="button" class="validate-btn" id="test-save">Enregistrer mon score en ligne</button></div>
       <p class="test-save-note">Un seul pseudo par profil, une seule place par Top : ton meilleur score. Le pseudo est fixé au premier enregistrement. Ton pseudo et tes résultats seront publics ; aucun son de ta voix n’est enregistré ni envoyé.</p>
       <p class="small" id="test-save-status" role="status"></p>
@@ -133,7 +149,7 @@
       <p class="dim small click-help">Changez le son même pendant l’exercice. À l’arrêt, « Écouter » joue trois clics.</p>
       <label class="display-option"><input id="show-note" type="checkbox" checked> Afficher le nom des notes</label>
     </section>
-    <section class="card test-top" aria-labelledby="test-top-title"><h2 id="test-top-title">Top 5 — Intervalles chantés</h2><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label><button type="button" class="ctrl-btn white" id="top-refresh">Actualiser</button></div><p class="small dim" id="top-status" role="status"></p><ol class="test-top-list" id="top-list"></ol><p class="test-save-note">Un Top par intervalle et par sens. Chaque pseudo conserve sa meilleure tentative, sans remise à zéro hebdomadaire.</p></section>
+    <section class="card test-top" id="test-top" aria-labelledby="test-top-title"><h2 id="test-top-title">Top 10 — Intervalles chantés</h2><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label><button type="button" class="ctrl-btn white" id="top-refresh">Actualiser</button></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Un Top par intervalle et par sens. Chaque pseudo conserve sa meilleure tentative, sans remise à zéro hebdomadaire.</p></section>
     <details class="help"><summary>Comment travailler ?</summary><p>Choisissez le niveau, l’intervalle et le tempo, puis adaptez le registre à votre voix. Après quatre clics, écoutez la note du piano sur la première pulsation. Sur la suivante, chantez l’intervalle demandé à partir de cette note. Recommencez avec chaque nouvelle note.</p><p>Le niveau modifie l’écart entre deux notes de piano successives. L’intervalle à chanter reste fixe. Au niveau 3, un registre large donne davantage de variété.</p><p>« Joue-le pour moi » lance le modèle en continu : note de départ, puis réponse au piano sur le clic suivant. « À moi de chanter » revient à l’exercice. Chaque changement recommence avec quatre clics ; « Arrêter » termine la séance.</p><p>Le métronome continue pendant le chant. En mode chant, la réponse reste silencieuse. Votre voix n’est pas enregistrée. Les préférences sont conservées sur cet appareil lorsque le navigateur le permet.</p><p>Raccourcis hors des réglages : <kbd>Espace</kbd> démarrer / arrêter · <kbd>Échap</kbd> arrêter. Gardez cette page au premier plan pendant la séance.</p></details>
   </main>
   <footer class="app-footer">© 2026 — Guillaume Estace / American School of Modern Music</footer>
@@ -400,7 +416,7 @@ class SingingAudio {
 <script>
 /* Shared scoring rules: browser and server use this exact module. No audio is uploaded. */
 const SingingScore = (() => {
-  const ID = 'singing-20-v1', TOTAL = 20;
+  const ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
   const gaps = {close:[1,4],medium:[5,9],wide:[10,24],free:[1,60]};
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const octaveCents = value => ((value + 600) % 1200 + 1200) % 1200 - 600;
@@ -410,7 +426,7 @@ const SingingScore = (() => {
       !Number.isInteger(raw.low) || !Number.isInteger(raw.high) || raw.low<36 || raw.high>96 || raw.low>=raw.high || raw.high-raw.low<gaps[raw.difficulty][0]) throw new Error('Réglages du test invalides.');
     return {interval:raw.interval,direction:raw.direction,tempo:raw.tempo,difficulty:raw.difficulty,low:raw.low,high:raw.high};
   }
-  function noteResult(note, cfg, previous) {
+  function noteResult(note, cfg, previous, total) {
     const duration=60000/cfg.tempo, frames=note.samples;
     if (!Number.isInteger(note.midi) || note.midi<cfg.low || note.midi>cfg.high || !Array.isArray(frames) || frames.length>Math.ceil(duration/35)) throw new Error('Mesures du test invalides.');
     if (previous!==null) {const gap=Math.abs(note.midi-previous);if(gap<gaps[cfg.difficulty][0] || gap>gaps[cfg.difficulty][1])throw new Error('Écarts du test invalides.');}
@@ -437,19 +453,25 @@ const SingingScore = (() => {
     const rawGap=previous===null?0:Math.abs(note.midi-previous)%12;
     const effectiveGap=Math.min(rawGap,12-rawGap);
     return {midi:note.midi,meanCents,quality,seconds,effectiveGap,
-      accuracyPoints:quality*500,speedPoints:quality*speed*100,gapPoints:quality*effectiveGap/6*(1000/19)};
+      accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),gapPoints:quality*effectiveGap/6*(1000/(total-1))};
   }
-  function evaluate(rawConfig, notes) {
+  function evaluateForTotal(rawConfig, notes, total) {
     const cfg=config(rawConfig);
-    if (!Array.isArray(notes) || notes.length!==TOTAL) throw new Error('Le test doit comporter 20 notes terminées.');
-    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null));
+    if (!Array.isArray(notes) || notes.length!==total) throw new Error(`Le test doit comporter ${total} notes terminées.`);
+    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null,total));
     const sum=key=>results.reduce((n,r)=>n+(r[key]||0),0);
     const accuracy=Math.round(sum('accuracyPoints')),speed=Math.round(sum('speedPoints')),gaps=Math.round(sum('gapPoints'));
     const voiced=results.filter(n=>n.meanCents!==null),timed=results.filter(n=>n.seconds!==null);
-    return {score:accuracy+speed+gaps,accuracy,speed,gaps,grade:Math.round(sum('quality')*10)/10,
+    return {score:accuracy+speed+gaps,accuracy,speed,gaps,grade:Math.round(sum('quality')/total*200)/10,
       meanCents:voiced.length?Math.round(voiced.reduce((s,n)=>s+n.meanCents,0)/voiced.length*10)/10:null,
       averageSeconds:timed.length?Math.round(timed.reduce((s,n)=>s+n.seconds,0)/timed.length*100)/100:null,
-      correct:results.filter(n=>n.quality===1).length,heard:voiced.length,total:TOTAL,results};
+      correct:results.filter(n=>n.quality===1).length,heard:voiced.length,total,results};
+  }
+  const evaluate = (cfg, notes) => evaluateForTotal(cfg, notes, TOTAL);
+  function restore(payload) {
+    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20);
+    if(payload.ruleset!==ID)throw new Error('Ancien barème incompatible.');
+    return evaluate(payload.config,payload.notes);
   }
   class Capture {
     constructor(cfg) {this.cfg=config(cfg);this.notes=[];this.endAt=null;}
@@ -462,7 +484,7 @@ const SingingScore = (() => {
     }
     result() {return evaluate(this.cfg,this.notes);}
   }
-  return {ID,TOTAL,config,evaluate,Capture,octaveCents};
+  return {ID,LEGACY_ID,TOTAL,config,evaluate,restore,Capture,octaveCents};
 })();
 
 </script>
@@ -473,6 +495,8 @@ class SingingTestUI {
   constructor(core, getConfig) {
     this.core=core;this.getConfig=getConfig;this.$=id=>document.getElementById(id);
     this.api='https://et3-scores-classe.asmm-1896.chatgpt.site';
+    this.pinball=window.PinballTop.mount(this.$('top-list'),{title:'TOP 10 · INTERVALLES'});
+    this.$('last-result').addEventListener('click',()=>this.reveal());
     this.profileKey='asmm.singing.profile.v1';this.resultKey='asmm.singing.result.v1';this.version=0;this.publishing=false;
     for(const [value,label] of core.INTERVALS){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
     for(const id of ['top-interval','top-direction'])this.$(id).addEventListener('change',()=>void this.refresh());
@@ -480,7 +504,7 @@ class SingingTestUI {
     this.$('test-save').addEventListener('click',()=>void this.save());
     this.select(getConfig());
     const pending=this.read(this.resultKey);
-    if(pending?.payload)try{this.show(pending.payload,SingingScore.evaluate(pending.payload.config,pending.payload.notes),!!pending.saved);}catch{}
+    if(pending?.payload)try{this.show(pending.payload,SingingScore.restore(pending.payload),!!pending.saved);}catch{}
   }
   read(key){try{return JSON.parse(localStorage.getItem(key)||'null');}catch{return null;}}
   write(key,value){localStorage.setItem(key,JSON.stringify(value));}
@@ -490,44 +514,42 @@ class SingingTestUI {
     if(!response.ok)throw new Error(body.error||'Enregistrement impossible.');return body;
   }
   select(cfg){this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}
-  busy(value){this.$('test-start').disabled=value;if(value)this.$('test-result').hidden=true;}
+  busy(value){this.$('test-start').disabled=value;this.$('last-result').disabled=value;if(value)this.$('test-result').hidden=true;}
+  reveal(){if(!this.pending)return;this.$('test-result').hidden=false;this.$('test-result-title').focus({preventScroll:true});this.$('test-result').scrollIntoView?.({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
   async refresh() {
     const id=++this.version,interval=Number(this.$('top-interval').value),direction=Number(this.$('top-direction').value);
-    this.$('top-status').textContent='Chargement du Top 5…';this.$('top-list').replaceChildren();
+    this.$('top-status').textContent='Chargement du Top 10…';this.pinball.setMessage('CHARGEMENT','Le Top 10 arrive…');
     try {
       const data=await this.request(`/api/singing/leaderboard?interval=${interval}&direction=${direction}`);
       if(id!==this.version)return;
       if(data.ruleset!==SingingScore.ID||data.interval!==interval||data.direction!==direction||!Array.isArray(data.rows))throw new Error('Classement incompatible.');
       this.$('top-status').textContent=`${data.participants} participant${data.participants>1?'s':''} · meilleur score par pseudo`;
-      for(const [i,row] of data.rows.entries()){
-        const li=document.createElement('li'),rank=document.createElement('b'),name=document.createElement('strong'),score=document.createElement('strong'),detail=document.createElement('small');
-        rank.textContent=String(i+1);name.textContent=row.name;score.textContent=`${row.score.toLocaleString('fr-FR')} pts`;
-        detail.textContent=`${row.grade}/20 · ${row.config.tempo} bpm · écart moyen ${row.meanCents===null?'—':row.meanCents+' cents'} · réponse ${row.averageSeconds===null?'—':row.averageSeconds+' s'}`;
-        li.append(rank,name,score,detail);this.$('top-list').append(li);
-      }
-      if(!data.rows.length){const li=document.createElement('li');li.className='top-empty';li.textContent='Pas encore de score pour cet intervalle dans ce sens.';this.$('top-list').append(li);}
-    }catch{if(id===this.version)this.$('top-status').textContent='Top en ligne indisponible. Les tests restent utilisables et les résultats sont conservés sur cet appareil.';}
+      this.pinball.setRows(data.rows.map(row=>({name:row.name,score:row.score,
+        detail:`${row.grade}/20 · ${row.questions||30} notes · ${row.config.tempo} bpm · écart ${row.meanCents===null?'—':row.meanCents+' cents'} · réponse ${row.averageSeconds===null?'—':row.averageSeconds+' s'}`})));
+
+    }catch{if(id===this.version){this.$('top-status').textContent='Top en ligne indisponible. Les tests restent utilisables et les résultats sont conservés sur cet appareil.';this.pinball.setMessage('INDISPONIBLE','Actualise pour réessayer.');}}
   }
   show(payload,metrics,saved=false) {
-    this.pending={payload,saved};this.$('test-result').hidden=false;
+    const legacy=payload.ruleset!==SingingScore.ID;
+    this.pending={payload,saved};this.$('last-result').hidden=false;this.$('test-result').hidden=false;
     const label=this.core.INTERVALS.find(([n])=>n===payload.config.interval)[1];
-    this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · 20 notes terminées`;
+    this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · ${metrics.total} notes terminées`;
     this.$('test-score').textContent=metrics.score.toLocaleString('fr-FR')+' pts';
     this.$('test-grade').textContent=metrics.grade+'/20';
-    this.$('test-precision').textContent=metrics.meanCents===null?'Aucune note détectée':`${metrics.meanCents} cents · ${metrics.heard}/20 entendues`;
+    this.$('test-precision').textContent=metrics.meanCents===null?'Aucune note détectée':`${metrics.meanCents} cents · ${metrics.heard}/${metrics.total} entendues`;
     this.$('test-speed').textContent=metrics.averageSeconds===null?'Aucune réponse stabilisée':`${metrics.averageSeconds} s depuis le piano`;
     this.$('test-breakdown').textContent=`Justesse : ${metrics.accuracy} pts · Rapidité : ${metrics.speed} pts · Écarts : ${metrics.gaps} pts`;
     const rows=this.$('test-note-results');rows.replaceChildren();
     metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
     const profile=this.read(this.profileKey)||{};
     this.$('test-name').value=profile.name||payload.name||'';this.$('test-name').readOnly=!!profile.name;
-    this.$('test-save').disabled=saved;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
-    this.$('test-save-status').textContent=saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
+    this.$('test-save').disabled=saved||legacy;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
+    this.$('test-save-status').textContent=legacy?'Ancien test de 20 notes conservé. Lance un test de 30 notes pour enregistrer un nouveau score.':saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
     try{this.write(this.resultKey,this.pending);}catch{this.$('test-save-status').textContent='Résultat disponible ici. Le stockage local est bloqué : garde cette page ouverte.';}
     this.select(payload.config);
   }
   async save() {
-    if(this.publishing||!this.pending||this.pending.saved)return;
+    if(this.publishing||!this.pending||this.pending.saved||this.pending.payload.ruleset!==SingingScore.ID)return;
     const pending=this.pending,profile=this.read(this.profileKey)||{};
     const name=(profile.name||this.$('test-name').value).normalize('NFKC').trim().replace(/\s+/g,' ');
     if([...name].length<2||[...name].length>16){this.$('test-save-status').textContent='Choisis un pseudo de 2 à 16 caractères.';return;}
@@ -546,6 +568,70 @@ class SingingTestUI {
 
 </script>
 <!-- END test-ui -->
+<!-- BEGIN pinball-top -->
+<script>
+/* Shared, self-contained dot-matrix Top 10. Names are drawn as pixels, never HTML. */
+window.PinballTop = (() => {
+  const patterns={
+    A:['01110','10001','10001','11111','10001','10001','10001'],B:['11110','10001','10001','11110','10001','10001','11110'],C:['01111','10000','10000','10000','10000','10000','01111'],D:['11110','10001','10001','10001','10001','10001','11110'],E:['11111','10000','10000','11110','10000','10000','11111'],F:['11111','10000','10000','11110','10000','10000','10000'],G:['01111','10000','10000','10111','10001','10001','01111'],H:['10001','10001','10001','11111','10001','10001','10001'],I:['11111','00100','00100','00100','00100','00100','11111'],J:['00111','00010','00010','00010','10010','10010','01100'],K:['10001','10010','10100','11000','10100','10010','10001'],L:['10000','10000','10000','10000','10000','10000','11111'],M:['10001','11011','10101','10101','10001','10001','10001'],N:['10001','11001','10101','10011','10001','10001','10001'],O:['01110','10001','10001','10001','10001','10001','01110'],P:['11110','10001','10001','11110','10000','10000','10000'],Q:['01110','10001','10001','10001','10101','10010','01101'],R:['11110','10001','10001','11110','10100','10010','10001'],S:['01111','10000','10000','01110','00001','00001','11110'],T:['11111','00100','00100','00100','00100','00100','00100'],U:['10001','10001','10001','10001','10001','10001','01110'],V:['10001','10001','10001','10001','10001','01010','00100'],W:['10001','10001','10001','10101','10101','10101','01010'],X:['10001','10001','01010','00100','01010','10001','10001'],Y:['10001','10001','01010','00100','00100','00100','00100'],Z:['11111','00001','00010','00100','01000','10000','11111'],
+    '0':['01110','10001','10011','10101','11001','10001','01110'],'1':['00100','01100','00100','00100','00100','00100','01110'],'2':['01110','10001','00001','00010','00100','01000','11111'],'3':['11110','00001','00001','01110','00001','00001','11110'],'4':['00010','00110','01010','10010','11111','00010','00010'],'5':['11111','10000','10000','11110','00001','00001','11110'],'6':['01110','10000','10000','11110','10001','10001','01110'],'7':['11111','00001','00010','00100','01000','01000','01000'],'8':['01110','10001','10001','01110','10001','10001','01110'],'9':['01110','10001','10001','01111','00001','00001','01110'],
+    '!':['00100','00100','00100','00100','00100','00000','00100'],'-':['00000','00000','00000','11111','00000','00000','00000'],'.':['00000','00000','00000','00000','00000','00110','00110'],"'":['00100','00100','00000','00000','00000','00000','00000'],'?':['01110','10001','00001','00010','00100','00000','00100'],' ':Array(7).fill('00000')
+  };
+  let counter=0;
+  const ns='http://www.w3.org/2000/svg';
+  const element=(tag,attrs={})=>{const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);return n;};
+  function matrix(text, width=120) {
+    const label=String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/œ/gi,'OE').replace(/[’_]/g,"'").toUpperCase().slice(0,20);
+    const svg=element('svg',{viewBox:`0 0 ${width} 9`,'aria-hidden':'true',focusable:'false'}),id='pb-grid-'+(++counter);
+    const defs=element('defs'),pattern=element('pattern',{id,width:1,height:1,patternUnits:'userSpaceOnUse'});
+    pattern.append(element('circle',{cx:.5,cy:.5,r:.31,fill:'currentColor',opacity:.09}));defs.append(pattern);
+    svg.append(defs,element('rect',{width,height:9,fill:`url(#${id})`}));
+    let path='',left=Math.max(.5,(width-(label.length*6-1))/2);
+    [...label].forEach((letter,index)=>(patterns[letter]||patterns['?']).forEach((row,y)=>[...row].forEach((pixel,x)=>{if(pixel==='1'){const px=left+index*6+x,py=y+1;path+=`M${px-.36},${py}a.36,.36 0 1,0 .72,0a.36,.36 0 1,0 -.72,0 `;}})));
+    svg.append(element('path',{d:path,fill:'currentColor'}));return svg;
+  }
+  class Display {
+    constructor(root,{title='TOP 10'}={}) {
+      this.root=root;this.rows=[];this.index=0;this.paused=false;this.hover=false;this.focused=false;this.visible=true;this.loading=true;
+      this.motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');this.paused=!!this.motion?.matches;
+      root.classList.add('pinball-top');
+      root.innerHTML='<div class="pb-cabinet"><div class="pb-heading"><span class="pb-title"></span><span class="pb-position">01 / 10</span></div><div class="pb-screen" aria-hidden="true"><div class="pb-name"></div><div class="pb-score"></div></div><p class="pb-detail"></p><p class="pb-current pb-sr-only" aria-live="off"></p></div><div class="pb-controls"><button type="button" class="pb-prev" aria-label="Score précédent">←</button><button type="button" class="pb-pause" aria-pressed="false">Pause</button><button type="button" class="pb-next" aria-label="Score suivant">→</button></div><details class="pb-all"><summary>Voir les 10 places</summary><ol></ol></details>';
+      this.$=selector=>root.querySelector(selector);this.$('.pb-title').textContent=title;
+      this.$('.pb-prev').addEventListener('click',()=>this.move(-1));this.$('.pb-next').addEventListener('click',()=>this.move(1));
+      this.$('.pb-pause').addEventListener('click',()=>{this.paused=!this.paused;this.controls();});
+      root.addEventListener('mouseenter',()=>this.hover=true);root.addEventListener('mouseleave',()=>this.hover=false);
+      root.addEventListener('focusin',()=>this.focused=true);root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))this.focused=false;});
+      this.motionHandler=e=>{this.paused=e.matches;this.controls();};this.motion?.addEventListener?.('change',this.motionHandler);
+      if(window.IntersectionObserver){this.observer=new IntersectionObserver(entries=>{this.visible=entries[0].isIntersecting;});this.observer.observe(root);}
+      this.timer=setInterval(()=>{if(!root.isConnected){this.destroy();return;}if(!this.loading && !this.paused && !this.hover && !this.focused && this.visible && !document.hidden && !root.closest('[hidden]') && this.rows.length)this.move(1);},4500);
+      this.setMessage('CHARGEMENT','Le classement arrive…');this.controls();
+    }
+    controls(){this.$('.pb-pause').textContent=this.paused?'Défiler':'Pause';this.$('.pb-pause').setAttribute('aria-pressed',String(this.paused));for(const sel of ['.pb-prev','.pb-next','.pb-pause'])this.$(sel).disabled=this.loading;}
+    setRows(rows) {
+      const normalized=rows.slice(0,10).map(r=>({name:String(r.name||'—'),score:Math.max(0,Math.round(Number(r.score)||0)),detail:String(r.detail||'')}));
+      const signature=JSON.stringify(normalized);if(signature!==this.signature)this.index=0;this.signature=signature;this.rows=normalized;this.loading=false;
+      const list=this.$('.pb-all ol');list.replaceChildren();
+      for(let i=0;i<10;i++){const row=this.rows[i],li=document.createElement('li');li.textContent=row?`${row.name} · ${row.score.toLocaleString('fr-FR')} points${row.detail?' · '+row.detail:''}`:'Place libre';list.append(li);}
+      this.controls();this.render(false);
+    }
+    setMessage(title,detail=''){this.loading=true;this.$('.pb-name').replaceChildren(matrix(title));this.$('.pb-score').replaceChildren(matrix('---',72));this.$('.pb-detail').textContent=detail;this.$('.pb-current').textContent=title+' · '+detail;this.$('.pb-all ol').replaceChildren();this.controls();}
+    move(delta){if(this.loading)return;this.index=(this.index+delta+10)%10;this.render(true);}
+    render(animate) {
+      const row=this.rows[this.index],rank=String(this.index+1).padStart(2,'0');
+      this.root.dataset.position=String(this.index+1);this.$('.pb-position').textContent=rank+' / 10';
+      this.$('.pb-name').replaceChildren(matrix(rank+' '+(row?row.name:'PLACE LIBRE')));
+      this.$('.pb-score').replaceChildren(matrix(row?String(row.score).padStart(5,'0')+' PTS':'A VOUS !',72));
+      this.$('.pb-detail').textContent=row?row.detail:'Enregistre un score pour prendre ta place.';
+      this.$('.pb-current').textContent=row?`Rang ${this.index+1} : ${row.name}, ${row.score} points. ${row.detail}`:`Rang ${this.index+1} : place libre.`;
+      const screen=this.$('.pb-screen');screen.classList.remove('pb-enter');if(animate && !this.motion?.matches){void screen.offsetWidth;screen.classList.add('pb-enter');}
+    }
+    destroy(){clearInterval(this.timer);this.observer?.disconnect();this.motion?.removeEventListener?.('change',this.motionHandler);}
+  }
+  return {mount:(root,options)=>new Display(root,options)};
+})();
+
+</script>
+<!-- END pinball-top -->
 <script>
 /* Optional microphone tuner. Audio stays in memory; no recording or network upload. */
 const SingingPitch = (() => {
@@ -902,8 +988,8 @@ class SingingTuner {
     $('beat-piano').classList.toggle('active', event.phase === 'piano');
     $('beat-sing').classList.toggle('active', event.phase === 'sing');
     $('current-note').classList.toggle('singing', event.phase === 'sing');
-    $('counter').textContent = testRun ? `${event.pairs} / 20 notes` : `${event.pairs} note${event.pairs > 1 ? 's' : ''} de départ`;
-    $('test-progress').textContent = testRun ? (event.phase === 'count' ? 'Test de 20 notes · préparez-vous' : `Note ${event.pairs} sur 20 · ${event.phase === 'piano' ? 'écoutez' : 'chantez'}`) : '';
+    $('counter').textContent = testRun ? `${event.pairs} / ${SingingScore.TOTAL} notes` : `${event.pairs} note${event.pairs > 1 ? 's' : ''} de départ`;
+    $('test-progress').textContent = testRun ? (event.phase === 'count' ? 'Test de 30 notes · préparez-vous' : `Note ${event.pairs} sur ${SingingScore.TOTAL} · ${event.phase === 'piano' ? 'écoutez' : 'chantez'}`) : '';
     if (event.phase === 'count') {
       $('run-state').textContent = 'DÉCOMPTE'; $('phase-label').textContent = 'Prenez la pulsation';
       $('current-note').textContent = event.count; $('note-detail').textContent = event.count === 4 ? 'Le piano entre au prochain clic.' : '4 clics pour vous préparer';
@@ -930,7 +1016,7 @@ class SingingTuner {
     try {
       for (const beat of clock.take(audio.ctx.currentTime)) {
         const event = { ...sequence.next(), at: beat.at, duration: beat.duration };
-        if (testRun && event.pairs > 20) { testRun.endAt = beat.at; break; }
+        if (testRun && event.pairs > SingingScore.TOTAL) { testRun.endAt = beat.at; break; }
         testRun?.register(event);
         audio.click(beat.at, cfg.clickSound);
         const pitch = C.soundingPitch(event, cfg, !testRun && playMode === 'model');
@@ -987,10 +1073,10 @@ class SingingTuner {
     try {
       const result = run.result();
       const payload = {id:run.id,ruleset:SingingScore.ID,config:run.cfg,notes:run.notes,duration:run.endAt-run.startAt};
-      testRun = null; stop('Test terminé : les 20 notes ont été évaluées.');
-      $('test-progress').textContent = '20 / 20 · test terminé';
+      testRun = null; stop('Test terminé : les 30 notes ont été évaluées.');
+      $('test-progress').textContent = '30 / 30 · test terminé';
       testUI.show(payload,result);
-      $('test-result').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+      testUI.reveal();
     } catch (err) { stop(err.message || 'Test interrompu, aucun score enregistré.',true); }
   }
   function stop(message = 'Séance arrêtée. Le prochain départ commence par 4 clics.', error = false, preserveTuner = false) {

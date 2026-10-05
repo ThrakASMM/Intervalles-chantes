@@ -4,13 +4,13 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const S=runInNewContext(readFileSync(new URL('../src/test-score.js',import.meta.url),'utf8')+'\nSingingScore');
 const cfg={interval:4,direction:1,tempo:80,low:60,high:84,difficulty:'free'};
-const notes=(error=0,gap=6,tempo=80,start=150)=>Array.from({length:20},(_,i)=>({midi:60+(i%2)*gap,samples:Array.from({length:Math.max(0,Math.floor((60000/tempo-start-1)/50)+1)},(_,j)=>({t:start+j*50,c:error}))}));
-test('20 completed notes, gentle precision, average error and no silence points',()=>{
- const perfect=S.evaluate(cfg,notes(25));assert.equal(perfect.grade,20);assert.equal(perfect.accuracy,10000);assert.equal(perfect.gaps,1000);assert.equal(perfect.meanCents,25);assert.equal(perfect.heard,20);
+const notes=(error=0,gap=6,tempo=80,start=150)=>Array.from({length:30},(_,i)=>({midi:60+(i%2)*gap,samples:Array.from({length:Math.max(0,Math.floor((60000/tempo-start-1)/50)+1)},(_,j)=>({t:start+j*50,c:error}))}));
+test('30 completed notes, gentle precision, average error and no silence points',()=>{
+ const perfect=S.evaluate(cfg,notes(25));assert.equal(perfect.grade,20);assert.equal(perfect.accuracy,10000);assert.equal(perfect.gaps,1000);assert.equal(perfect.meanCents,25);assert.equal(perfect.heard,30);
  const partial=S.evaluate(cfg,notes(65));assert.equal(partial.grade,10);assert.equal(partial.accuracy,5000);assert.equal(partial.speed,0);
  const wrong=S.evaluate(cfg,notes(100));assert.equal(wrong.score,0);
  const silent=notes().map(n=>({...n,samples:[]}));assert.equal(S.evaluate(cfg,silent).score,0);assert.equal(S.evaluate(cfg,silent).meanCents,null);
- assert.throws(()=>S.evaluate(cfg,notes().slice(0,19)),/20 notes/);
+ assert.throws(()=>S.evaluate(cfg,notes().slice(0,29)),/30 notes/);
 });
 test('speed rewards real stable correct replies and tempo, difficulty ignores octave-only jumps',()=>{
  const fast=S.evaluate({...cfg,tempo:160},notes(0,6,160));const slow=S.evaluate({...cfg,tempo:40},notes(0,6,40));assert(fast.speed>slow.speed);assert.equal(fast.accuracy,slow.accuracy);
@@ -31,4 +31,9 @@ test('invalid ranges, impossible jumps, duplicated frames and out-of-beat sample
  assert.throws(()=>S.evaluate({...cfg,tempo:500},notes()),/Réglages/);
  assert.throws(()=>S.evaluate({...cfg,difficulty:'close'},notes()),/Écarts/);
  for(const samples of [[{t:20,c:0}],[{t:800,c:0}],[{t:150,c:Infinity}],[{t:150,c:0},{t:150,c:0}]]){const n=notes();n[0].samples=samples;assert.throws(()=>S.evaluate(cfg,n),/Mesures/);}
+});
+
+test('30 and legacy 20-note scores keep the same scale',()=>{
+ for(const cents of [0,25,65,100]){const current=S.evaluate(cfg,notes(cents));const legacy=S.restore({ruleset:S.LEGACY_ID,config:cfg,notes:notes(cents).slice(0,20)});for(const metric of ['score','grade','accuracy','speed','gaps'])assert.equal(current[metric],legacy[metric],metric);assert.equal(current.total,30);assert.equal(legacy.total,20);}
+ assert.throws(()=>S.restore({ruleset:'unknown',config:cfg,notes:notes()}),/incompatible/);
 });

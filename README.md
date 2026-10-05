@@ -4,13 +4,17 @@ Application autonome dans `index.html`, publiée sur GitHub Pages. Les sons et i
 
 ## Test classé
 
-- 20 notes de départ, quatre clics de préparation, une pulsation piano puis une réponse chantée.
-- Un Top 5 pour chacun des 12 intervalles et chaque sens. Un profil de navigateur conserve un pseudo fixé au premier enregistrement ; une seule place par pseudo, son meilleur résultat. Pas de remise à zéro hebdomadaire.
+- 30 notes de départ, quatre clics de préparation, une pulsation piano puis une réponse chantée.
+- Un Top 10 pour chacun des 12 intervalles et chaque sens. Un profil de navigateur conserve un pseudo fixé au premier enregistrement ; une seule place par pseudo, son meilleur résultat. Pas de remise à zéro hebdomadaire.
 - Octave libre, pour l’entraînement et le test. Clavier, modèle, noms de notes et changements de réglages bloqués pendant le test. Arrêt, perte du micro, changement d’onglet ou interruption audio invalident la tentative.
 - Justesse : maximum 10 000 points, moyenne des écarts absolus, après réduction à l’octave. Pleins points jusqu’à 30 cents, diminution progressive jusqu’à zéro à 100 cents. Moins de trois mesures réduit le crédit ; silence = zéro.
 - Rapidité : maximum 2 000 points, délai depuis la note du piano jusqu’au début d’une réponse juste confirmée par trois mesures sur au moins 90 ms. Bonus pondéré par la qualité moyenne de la note.
-- Écarts : maximum 1 000 points sur les 19 transitions, pondérés par la justesse. Distance entre classes de hauteurs (0–6 demi-tons) : une octave seule n’ajoute aucune difficulté lorsque l’octave est libre.
-- Notes absentes : zéro dans la note sur 20 ; écart moyen affiché calculé sur les notes détectées, avec leur nombre indiqué. Le bilan détaille les 20 réponses.
+- Écarts : maximum 1 000 points sur les 29 transitions, pondérés par la justesse. Distance entre classes de hauteurs (0–6 demi-tons) : une octave seule n’ajoute aucune difficulté lorsque l’octave est libre.
+- Notes absentes : zéro dans la note sur 20 ; écart moyen affiché calculé sur les notes détectées, avec leur nombre indiqué. Le bilan détaille les 30 réponses.
+
+Le bilan est affiché automatiquement à la fin du test ; le bouton « Voir mon dernier résultat » permet de le retrouver. Le Top 10 affiche les dix places en LED à points ambrés, avec défilement toutes les 4,5 secondes, pause, précédent/suivant et liste détaillée. Le défilement respecte la préférence de mouvement réduit.
+
+Les scores des anciens tests de 20 notes restent visibles : le maximum demeure 13 000 points et la note reste sur 20. Seuls les tests complets de 30 notes peuvent désormais être publiés.
 
 Le résultat terminé est conservé localement et peut être renvoyé après une erreur réseau avec le même identifiant. Le bouton Enregistrer partage le pseudo et les résultats dans le Top public. Aucun audio n’est enregistré ou envoyé ; seules les mesures de hauteur et de temps servent à recalculer le score côté serveur. Le serveur conserve les agrégats, pas les séries de mesures.
 
@@ -18,6 +22,6 @@ Service commun (tables et routes séparées d’ET3) : `https://et3-scores-class
 
 ## Développement
 
-`src/test-score.js` est la source commune du barème ; sa copie dans le service doit rester identique. `src/test-ui.js` gère bilan, profil, stockage et Top. `node scripts/build.mjs` les intègre dans la page autonome. Le reste de l’application est maintenu dans `index.html`. Ne jamais écraser les sons intégrés depuis l’ancien prototype.
+`src/test-score.js` est la source commune du barème ; sa copie dans le service doit rester identique. `src/test-ui.js` gère bilan, profil, stockage et Top. `node scripts/build.mjs` les intègre dans la page autonome. `src/pinball-top.js` et `.css` sont aussi intégrés au générateur ET3 pour partager le même affichage. Le reste de l’application est maintenu dans `index.html`. Ne jamais écraser les sons intégrés depuis l’ancien prototype.
 
 `pnpm install` puis `pnpm build` et `pnpm test`. Les tests utilisent des signaux, un micro et un serveur simulés ; ils ne créent aucun résultat dans le classement public. Vérifier avec un casque et une voix réelle pour évaluer l’acoustique d’un appareil.

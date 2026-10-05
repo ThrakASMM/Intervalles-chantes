@@ -1,6 +1,6 @@
 /* Shared scoring rules: browser and server use this exact module. No audio is uploaded. */
 const SingingScore = (() => {
-  const ID = 'singing-20-v1', TOTAL = 20;
+  const ID = 'singing-30-v1', LEGACY_ID = 'singing-20-v1', TOTAL = 30;
   const gaps = {close:[1,4],medium:[5,9],wide:[10,24],free:[1,60]};
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const octaveCents = value => ((value + 600) % 1200 + 1200) % 1200 - 600;
@@ -10,7 +10,7 @@ const SingingScore = (() => {
       !Number.isInteger(raw.low) || !Number.isInteger(raw.high) || raw.low<36 || raw.high>96 || raw.low>=raw.high || raw.high-raw.low<gaps[raw.difficulty][0]) throw new Error('Réglages du test invalides.');
     return {interval:raw.interval,direction:raw.direction,tempo:raw.tempo,difficulty:raw.difficulty,low:raw.low,high:raw.high};
   }
-  function noteResult(note, cfg, previous) {
+  function noteResult(note, cfg, previous, total) {
     const duration=60000/cfg.tempo, frames=note.samples;
     if (!Number.isInteger(note.midi) || note.midi<cfg.low || note.midi>cfg.high || !Array.isArray(frames) || frames.length>Math.ceil(duration/35)) throw new Error('Mesures du test invalides.');
     if (previous!==null) {const gap=Math.abs(note.midi-previous);if(gap<gaps[cfg.difficulty][0] || gap>gaps[cfg.difficulty][1])throw new Error('Écarts du test invalides.');}
@@ -37,19 +37,25 @@ const SingingScore = (() => {
     const rawGap=previous===null?0:Math.abs(note.midi-previous)%12;
     const effectiveGap=Math.min(rawGap,12-rawGap);
     return {midi:note.midi,meanCents,quality,seconds,effectiveGap,
-      accuracyPoints:quality*500,speedPoints:quality*speed*100,gapPoints:quality*effectiveGap/6*(1000/19)};
+      accuracyPoints:quality*(10000/total),speedPoints:quality*speed*(2000/total),gapPoints:quality*effectiveGap/6*(1000/(total-1))};
   }
-  function evaluate(rawConfig, notes) {
+  function evaluateForTotal(rawConfig, notes, total) {
     const cfg=config(rawConfig);
-    if (!Array.isArray(notes) || notes.length!==TOTAL) throw new Error('Le test doit comporter 20 notes terminées.');
-    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null));
+    if (!Array.isArray(notes) || notes.length!==total) throw new Error(`Le test doit comporter ${total} notes terminées.`);
+    const results=notes.map((note,i)=>noteResult(note,cfg,i?notes[i-1].midi:null,total));
     const sum=key=>results.reduce((n,r)=>n+(r[key]||0),0);
     const accuracy=Math.round(sum('accuracyPoints')),speed=Math.round(sum('speedPoints')),gaps=Math.round(sum('gapPoints'));
     const voiced=results.filter(n=>n.meanCents!==null),timed=results.filter(n=>n.seconds!==null);
-    return {score:accuracy+speed+gaps,accuracy,speed,gaps,grade:Math.round(sum('quality')*10)/10,
+    return {score:accuracy+speed+gaps,accuracy,speed,gaps,grade:Math.round(sum('quality')/total*200)/10,
       meanCents:voiced.length?Math.round(voiced.reduce((s,n)=>s+n.meanCents,0)/voiced.length*10)/10:null,
       averageSeconds:timed.length?Math.round(timed.reduce((s,n)=>s+n.seconds,0)/timed.length*100)/100:null,
-      correct:results.filter(n=>n.quality===1).length,heard:voiced.length,total:TOTAL,results};
+      correct:results.filter(n=>n.quality===1).length,heard:voiced.length,total,results};
+  }
+  const evaluate = (cfg, notes) => evaluateForTotal(cfg, notes, TOTAL);
+  function restore(payload) {
+    if(payload.ruleset===LEGACY_ID)return evaluateForTotal(payload.config,payload.notes,20);
+    if(payload.ruleset!==ID)throw new Error('Ancien barème incompatible.');
+    return evaluate(payload.config,payload.notes);
   }
   class Capture {
     constructor(cfg) {this.cfg=config(cfg);this.notes=[];this.endAt=null;}
@@ -62,5 +68,5 @@ const SingingScore = (() => {
     }
     result() {return evaluate(this.cfg,this.notes);}
   }
-  return {ID,TOTAL,config,evaluate,Capture,octaveCents};
+  return {ID,LEGACY_ID,TOTAL,config,evaluate,restore,Capture,octaveCents};
 })();
