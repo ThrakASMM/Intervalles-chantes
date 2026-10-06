@@ -2,7 +2,7 @@ import {readFileSync,writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=new URL('../',import.meta.url),file=new URL('index.html',root);
 let html=readFileSync(file,'utf8');
-for(const name of ['pinball-top','test-score','test-ui']){
+for(const name of ['singing-challenge','pinball-top','test-score','test-ui']){
  const start=`<!-- BEGIN ${name} -->`,end=`<!-- END ${name} -->`;
  const block=`${start}\n<script>\n${readFileSync(new URL(`src/${name}.js`,root),'utf8')}\n</script>\n${end}`;
  if(html.includes(start))html=html.slice(0,html.indexOf(start))+block+html.slice(html.indexOf(end)+end.length);

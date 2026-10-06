@@ -14,7 +14,7 @@ async function harness({deny=false,offline=false,stored=null}={}){
  w.fetch=async(url,options={})=>{
   requests.push({url,options});if(state.offline)throw new w.TypeError('offline');
   const u=new URL(url),body=options.body?JSON.parse(options.body):null;
-  return{ok:true,json:async()=>body?{ruleset:'singing-30-v2',name:body.name,playerId:'local-test',rows:[]}:{ruleset:'singing-30-v2',interval:Number(u.searchParams.get('interval')),direction:Number(u.searchParams.get('direction')),rows:[],participants:0}};
+  return{ok:true,json:async()=>body?{ruleset:'singing-30-v2',name:body.name,playerId:'local-test',rows:[]}:{ruleset:'singing-30-v2',challenge:u.searchParams.get('challenge'),interval:Number(u.searchParams.get('interval')),direction:Number(u.searchParams.get('direction')),rows:[],participants:0}};
  };
  if(stored)w.localStorage.setItem('asmm.singing.result.v1',JSON.stringify(stored));
  const fakeAudio=`class SingingAudio {
@@ -25,7 +25,7 @@ async function harness({deny=false,offline=false,stored=null}={}){
  }`;
  const core=scripts.find(s=>s.includes('Pure musical rules')),score=scripts.find(s=>s.includes('const SingingScore =')),ui=scripts.find(s=>s.includes('class SingingTestUI')),tuner=scripts.find(s=>s.includes('const SingingPitch ='));
  const main=scripts.at(-1).replace('  renderConfig(); renderKeyboard(); save();','  renderConfig(); renderKeyboard(); save(); window.__app={audio,tuner,schedule,animate,getRun:()=>testRun,getCfg:()=>cfg,getDisplayed:()=>displayed};');
- w.eval([core,fakeAudio,score,scripts.find(s=>s.includes('window.PinballTop =')),ui,tuner,main].join('\n'));
+ w.eval([core,fakeAudio,score,scripts.find(s=>s.includes('const SingingChallenge =')),scripts.find(s=>s.includes('window.PinballTop =')),ui,tuner,main].join('\n'));
  const app=w.__app;
  app.tuner.detector.detect=()=>{const e=app.getDisplayed();return e?.midi==null?null:{frequency:440*2**((e.midi+app.getCfg().interval*app.getCfg().direction+12-69)/12)};};
  const $=id=>w.document.getElementById(id);
@@ -72,14 +72,26 @@ test('offline result survives reload and retries with the same identity and atte
  }finally{h.close();}
  const restored=await harness({stored});try{assert.equal(restored.$('test-result').hidden,false);assert.equal(restored.$('test-name').value,'Élève');assert.equal(restored.$('test-grade').textContent,'20/20');}finally{restored.close();}
 });
-test('fast and slow tempos finish 30 descending responses with octave freedom',async()=>{
+test('personal settings never change the shared challenge, and are restored afterwards',async()=>{
  for(const tempo of [30,200]){
   const h=await harness();try{
+   h.$('mode-training').click();assert.equal(h.$('training-settings').hidden,false);
    h.$('tempo-number').value=tempo;h.$('tempo-number').dispatchEvent(new h.w.Event('change'));
-   const direction=h.w.document.querySelector('[name=direction][value="-1"]');direction.checked=true;direction.dispatchEvent(new h.w.Event('change'));
-   h.$('test-start').click();await flush();await h.advance(.15+64*60/tempo+.2);
-   assert.equal(h.played.length,30);assert.equal(h.clicks.length,64);assert.equal(h.$('test-grade').textContent,'20/20',String(tempo));
-   const payload=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1')).payload;assert.equal(payload.config.direction,-1);assert.equal(payload.config.tempo,tempo);
+   h.$('interval').value=7;h.$('interval').dispatchEvent(new h.w.Event('change'));
+   h.$('difficulty').value='free';h.$('difficulty').dispatchEvent(new h.w.Event('change'));
+   h.$('low').value=48;h.$('low').dispatchEvent(new h.w.Event('change'));
+   h.$('mode-challenge').click();assert.equal(h.$('training-settings').hidden,true);
+   h.$('test-direction').value=-1;h.$('test-direction').dispatchEvent(new h.w.Event('change'));
+   h.$('test-interval').value=1;h.$('test-interval').dispatchEvent(new h.w.Event('change'));
+   h.$('test-start').click();await flush();assert(h.$('course-choices').disabled);assert(h.$('mode-training').disabled);
+   h.$('mode-training').dispatchEvent(new h.w.Event('click'));assert.equal(h.$('training-settings').hidden,true);
+   await h.advance(48.3);assert.equal(h.played.length,30);assert.equal(h.clicks.length,64);assert.equal(h.$('test-grade').textContent,'20/20');
+   const payload=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1')).payload;
+   assert.equal(payload.challenge,'singing-course-001-seconds');
+   assert.deepEqual(payload.config,{interval:1,direction:-1,tempo:80,difficulty:'close',low:60,high:72});
+   assert.deepEqual(payload.notes.map(n=>n.midi),[60,62,65,64,67,69,66,65,68,72,71,67,64,62,61,65,68,66,69,72,70,67,65,62,64,68,71,69,66,63]);
+   h.$('mode-training').click();assert.equal(h.$('tempo-number').value,String(tempo));assert.equal(h.$('interval').value,'7');assert.equal(h.$('low').value,'48');assert.equal(h.$('difficulty').value,'free');
+   const saved=JSON.parse(h.w.localStorage.getItem('asmm.intervalles-chantes.v1'));assert.equal(saved.tempo,tempo);assert.equal(saved.interval,7);
   }finally{h.close();}
  }
 });
@@ -101,5 +113,33 @@ test('old 30-note results retain their score and explain the new scoring before 
   assert.equal(old.$('test-grade').textContent,'10/20');assert(old.$('test-save').disabled);
   assert.match(old.$('test-save-status').textContent,/barème d’origine/);
   assert.match(old.$('test-precision-label').textContent,/entendues/);
+ }finally{old.close();}
+});
+
+
+test('course selectors, archives and free practice have distinct scopes',async()=>{
+ const h=await harness();try{
+  assert.deepEqual([...h.$('test-interval').options].map(o=>o.value),['1','2']);
+  assert.deepEqual([...h.$('top-interval').options].map(o=>o.value),['1','2']);
+  assert.equal(h.$('training-settings').hidden,true);assert.equal(h.$('play-model').hidden,true);
+  h.$('test-interval').value=1;h.$('test-interval').dispatchEvent(new h.w.Event('change'));await flush();
+  assert.equal(h.$('top-interval').value,'1');assert.match(h.requests.at(-1).url,/challenge=singing-course-001-seconds/);
+  h.$('top-scope').value='archive';h.$('top-scope').dispatchEvent(new h.w.Event('change'));await flush();
+  assert.equal(h.$('top-interval').options.length,12);assert(!h.requests.at(-1).url.includes('challenge='));
+  assert.equal(h.$('test-interval').value,'1');
+  h.$('mode-training').click();assert.equal(h.$('play-model').hidden,false);assert.equal(h.$('interval').options.length,12);
+  h.$('start').click();await flush();await h.advance(5);assert.equal(h.app.getRun(),null);assert(h.played.length>0);h.$('stop').click();
+  assert.equal(h.w.localStorage.getItem('asmm.singing.result.v1'),null);
+ }finally{h.close();}
+});
+
+test('a previous free-settings result stays readable but cannot enter the common Top',async()=>{
+ const h=await harness();let stored;
+ try{h.$('test-start').click();await flush();await h.advance(48.3);stored=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1'));}finally{h.close();}
+ delete stored.payload.challenge;
+ const old=await harness({stored});try{
+  assert.equal(old.$('test-grade').textContent,'20/20');assert(old.$('test-save').disabled);
+  assert.match(old.$('test-save-status').textContent,/réglages communs/);
+  assert.equal(old.$('top-scope').value,'course');
  }finally{old.close();}
 });

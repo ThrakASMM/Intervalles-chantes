@@ -47,6 +47,10 @@
 .test-launch{margin:0 0 14px;background:#f2f6ff;border-color:#c8d9fa}.test-launch-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.test-launch h2{margin:0 0 5px}.test-launch p{margin:0}.test-launch button{min-height:46px}.test-progress{text-align:center;font-size:.85rem;font-weight:750;color:#0756d6;min-height:1.3em;margin:6px 0 12px}
 .test-result{margin:16px 0}.test-result[hidden]{display:none}.test-result h2{font-size:1.1rem}.test-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.test-metrics div{border-radius:9px;background:#f3f6fb;padding:12px}.test-metrics small{display:block;color:#586780;margin-bottom:5px}.test-metrics strong{font-size:1.15rem}.test-metrics div:first-child strong{font-size:1.65rem;color:#0756d6}.test-details{font-size:.82rem;line-height:1.8}.test-save-form{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-top:16px}.test-save-form label{flex:1;min-width:140px}.test-save-form input{display:block;width:100%;padding:10px;margin-top:5px;border:1px solid #bcc8dc;border-radius:7px}.test-save-form button{min-height:44px}.test-save-note{font-size:.74rem;color:#5d6880;line-height:1.5}.test-top{margin:16px 0}.test-top-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.test-top-filters label{flex:1;min-width:130px}.test-top-filters select{display:block;width:100%;padding:9px;margin-top:5px}.test-top-list{list-style:none;padding:0;margin:12px 0}.test-top-list li{display:grid;grid-template-columns:26px 1fr auto;gap:8px;padding:12px 0;border-top:1px solid #e0e6ef;align-items:center}.test-top-list li>b{color:#8491a5}.test-top-list li>small{grid-column:2/-1;color:#61718a;line-height:1.5}.test-top-list .top-empty{display:block;color:#61718a}.test-launch details{margin-top:12px;font-size:.8rem;line-height:1.5}.test-launch details p{margin:8px 0}button:disabled{cursor:default;opacity:.5}
 .test-shortcuts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.test-shortcuts [hidden]{display:none}.test-shortcuts a{text-decoration:none}.test-result{scroll-margin-top:20px}.test-result h2:focus{outline:none}
+[hidden]{display:none!important}
+.practice-modes{display:flex;gap:6px;padding:5px;background:#edf1f8;border-radius:11px;margin-bottom:14px}.practice-modes button{flex:1;border:0;border-radius:8px;padding:11px 7px;font-size:.84rem;font-weight:750;color:#52607a;background:transparent;cursor:pointer}.practice-modes button[aria-pressed=true]{background:#fff;color:#0756d6;box-shadow:0 1px 5px #17223a18}.practice-modes button:disabled{cursor:default;opacity:.65}
+.course-choices{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:16px 0}.course-rules{margin:16px 0;background:#fff;border:1px solid #dce5f8;border-radius:10px;padding:12px 14px;font-size:.83rem;line-height:1.5}.course-rules div+div{margin-top:8px}.course-rules dt{font-weight:750;color:#253958}.course-rules dd{margin:0;color:#52607a}.course-octave{font-size:.85rem;line-height:1.5;color:#253958}.test-launch-heading>div{min-width:0}.test-launch .validate-btn{width:100%;margin:4px 0 12px}.transport.course-transport{grid-template-columns:1fr 140px}.top-scope{display:block;margin-bottom:12px;font-size:.8rem;color:var(--sub)}.top-scope select{display:block;width:100%;margin-top:6px;padding:9px 7px;border:1px solid var(--border);border-radius:8px;background:#fff;font:700 .82rem system-ui;min-height:44px}
+@media(max-width:420px){.course-choices{grid-template-columns:1fr}.transport.course-transport{grid-template-columns:1fr 100px}.transport.course-transport #stop{grid-column:auto}}
 /* Scores belong to the shared application surface and scroll with it. */
 .menu-hdr{width:min(1280px,94vw)}
 .screen.app-layout{width:min(1280px,94vw);margin:6px 0 18px;container-type:inline-size}
@@ -92,6 +96,8 @@
   <main class="screen app-layout">
     <div class="setup-header">
       <div class="setup-controls">
+      <div class="practice-modes" role="group" aria-label="Mode de travail"><button type="button" id="mode-challenge" aria-pressed="true">Défi du cours</button><button type="button" id="mode-training" aria-pressed="false">Entraînement libre</button></div>
+      <div id="training-settings" class="training-only" hidden><p class="small dim">Réglages personnels pour s’entraîner, sans classement.</p>
 <fieldset id="session-settings" class="session-settings first-choices">
       <legend class="sr-only">Premiers choix de la séance</legend>
       <div class="settings-grid">
@@ -106,12 +112,20 @@
       <div class="tempo-row"><button class="ctrl-btn white small" id="tempo-less" aria-label="Ralentir de 5 pulsations par minute">−5</button><label class="sr-only" for="tempo">Tempo</label><input id="tempo" type="range" min="30" max="200" step="1" value="80"><button class="ctrl-btn white small" id="tempo-more" aria-label="Accélérer de 5 pulsations par minute">+5</button></div>
       <p class="dim small tempo-help">Modifiable pendant l’exercice · une nouvelle note toutes les <strong id="note-rate">1,5 s</strong></p>
     </section>
+      </div>
     <section class="card test-launch" aria-labelledby="test-title">
-      <div class="test-launch-heading"><div><h2 id="test-title">Test de 30 notes</h2><p class="small dim">L’intervalle, le sens, le niveau et le tempo choisis ci-dessus · octave libre.</p></div><button type="button" class="validate-btn" id="test-start">🏆 Lancer le test</button></div><div class="test-shortcuts"><button type="button" class="ctrl-btn white small" id="last-result" hidden>Voir mon dernier résultat</button><a class="ctrl-btn white small" href="#test-top">Voir le Top 10 LED</a></div>
+      <div class="test-launch-heading"><div><h2 id="test-title">Défi du cours</h2><p class="small dim" id="course-title">Secondes mineures et majeures</p></div></div>
+      <p class="small">Un cadre commun pour toute la classe. Choisissez seulement l’intervalle et le sens à travailler.</p>
+      <fieldset class="session-settings course-choices" id="course-choices"><legend class="sr-only">Choix du défi</legend><label for="test-interval">Intervalle du défi<select id="test-interval"></select></label><label for="test-direction">Sens du défi<select id="test-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></fieldset>
+      <dl class="course-rules"><div><dt>30 notes · 80 BPM</dt><dd>La même série pour tout le monde.</dd></div><div><dt>Amplitude imposée · niveau 1</dt><dd>Petits écarts de 1 à 4 demi-tons entre les notes de départ.</dd></div><div><dt>Registre du piano imposé</dt><dd>De Do3 à Do4, sur une octave.</dd></div></dl>
+      <p class="course-octave"><strong>Pour votre voix, l’octave est libre.</strong> Chantez la note demandée plus haut ou plus bas selon votre tessiture : toutes les octaves comptent juste.</p>
+      <p class="small dim">Un Top par intervalle et par sens. Ce défi reste ouvert jusqu’à la prochaine consigne du cours.</p>
+      <button type="button" class="validate-btn" id="test-start">🏆 Lancer le défi</button>
+      <div class="test-shortcuts"><button type="button" class="ctrl-btn white small" id="last-result" hidden>Voir mon dernier résultat</button><a class="ctrl-btn white small" href="#test-top">Voir le Top 10 LED</a></div>
       <details><summary>Comment est calculé le score ?</summary><p>La justesse rapporte jusqu’à 10 000 points. Le test retient une courte portion stable de votre note : une attaque hésitante ne pénalise pas la justesse si la note est ensuite bien posée. La tolérance est de ±45 cents, soit un peu moins d’un demi-ton, pour tous les intervalles. Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
     </section>
       </div>
-      <aside class="test-top" id="test-top" aria-labelledby="test-top-title"><header class="test-top-heading"><span class="test-top-icon" aria-hidden="true">🏆</span><div><p class="test-top-eyebrow">LES SCORES</p><h2 id="test-top-title">Top 10 · Intervalles</h2></div><button type="button" class="test-top-refresh" id="top-refresh" aria-label="Actualiser le classement" title="Actualiser le classement">↻</button></header><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Un Top par intervalle et par sens. Chaque pseudo conserve sa meilleure tentative, sans remise à zéro hebdomadaire.</p></aside>
+      <aside class="test-top" id="test-top" aria-labelledby="test-top-title"><header class="test-top-heading"><span class="test-top-icon" aria-hidden="true">🏆</span><div><p class="test-top-eyebrow">LES SCORES</p><h2 id="test-top-title">Top 10 · Défi du cours</h2></div><button type="button" class="test-top-refresh" id="top-refresh" aria-label="Actualiser le classement" title="Actualiser le classement">↻</button></header><label class="top-scope" for="top-scope">Classement<select id="top-scope"><option value="course">Défi du cours · Secondes</option><option value="archive">Archives · Anciens tests</option></select></label><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Une place par pseudo et par Top. Les anciens essais aux réglages libres sont conservés dans les archives.</p></aside>
     </div>
     <section class="exercise" aria-label="Exercice au métronome">
       <div class="exercise-top"><span class="badge" id="run-state">PRÊT À JOUER</span><span class="counter" id="counter">0 note de départ</span></div>
@@ -143,10 +157,10 @@
         <p class="tuner-status" id="tuner-status" role="status" aria-live="polite">Accordeur désactivé</p>
         <p class="tuner-help">Le voyant se rapproche du centre quand vous vous rapprochez de la note.<br>Zone verte souple · petites fluctuations stabilisées.<br>Écoute sur « À vous ».<br>Un casque aide à isoler votre voix. Le micro se coupe à l’arrêt ; votre voix n’est ni enregistrée ni envoyée.</p>
       </section>
-      <div class="transport"><button type="button" class="validate-btn" id="start">▶ Démarrer</button><button type="button" class="ctrl-btn white" id="play-model">♫ Joue-le pour moi</button><button type="button" class="ctrl-btn white" id="stop" disabled>■ Arrêter</button></div>
-      <p class="model-help">« Joue-le pour moi » joue aussi la réponse, une pulsation après la note de départ.</p>
+      <div class="transport"><button type="button" class="validate-btn" id="start">▶ Démarrer</button><button type="button" class="ctrl-btn white training-only" id="play-model">♫ Joue-le pour moi</button><button type="button" class="ctrl-btn white" id="stop" disabled>■ Arrêter</button></div>
+      <p class="model-help training-only">« Joue-le pour moi » joue aussi la réponse, une pulsation après la note de départ.</p>
       <p id="status" class="status" role="status" aria-live="polite"></p>
-      <section class="keyboard-panel" aria-labelledby="keyboard-title">
+      <section class="keyboard-panel training-only" aria-labelledby="keyboard-title">
         <div class="keyboard-heading"><div><h3 id="keyboard-title">Clavier de repère</h3><p>Jouez une note pour comparer avec celle que vous chantez.</p></div><div class="keyboard-register"><button type="button" class="ctrl-btn white small" id="keyboard-lower" aria-label="Clavier : une octave plus grave">−</button><output id="keyboard-range" aria-label="Registre du clavier"></output><button type="button" class="ctrl-btn white small" id="keyboard-higher" aria-label="Clavier : une octave plus aiguë">+</button></div></div>
         <div class="piano-scroll" role="region" aria-label="Clavier piano de deux octaves"><div class="piano-keyboard" id="piano-keyboard" role="group" aria-label="Touches du piano"></div></div>
         <p class="keyboard-touch-help">Faites défiler le clavier pour atteindre les autres touches.</p>
@@ -161,18 +175,18 @@
       <p class="test-save-note">Un seul pseudo par profil, une seule place par Top : ton meilleur score. Le pseudo est fixé au premier enregistrement. Ton pseudo et tes résultats seront publics ; aucun son de ta voix n’est enregistré ni envoyé.</p>
       <p class="small" id="test-save-status" role="status"></p>
     </section>
-    <fieldset id="register-settings" class="session-settings">
+    <fieldset id="register-settings" class="session-settings training-only">
       <legend class="sr-only">Registre de la séance</legend>
         <section class="card register-card"><h2>Registre du piano</h2><div class="range-selects"><label for="low">Note la plus grave<select id="low"></select></label><span class="range-arrow" aria-hidden="true">→</span><label for="high">Note la plus aiguë<select id="high"></select></label></div><p class="dim small" id="vocal-range"></p><p class="dim tiny">Repère d’octave identique à Ear Training : Do3 / C3 = do central.</p></section>
     </fieldset>
-    <p class="settings-hint" id="settings-hint">Choisissez un registre confortable pour la voix.</p>
+    <p class="settings-hint training-only" id="settings-hint">Choisissez un registre confortable pour la voix.</p>
     <section class="card audio-card" aria-labelledby="audio-title"><h2 id="audio-title">Son & affichage</h2>
-      <div class="audio-grid"><label for="sound">Son du piano<select id="sound"><option value="samples">Piano (échantillons)</option><option value="piano">Piano (synthé)</option><option value="epiano">Piano électrique (synthé)</option><option value="sine">Sinus pur (synthé)</option></select></label>
+      <div class="audio-grid"><label class="training-only" for="sound">Son du piano<select id="sound"><option value="samples">Piano (échantillons)</option><option value="piano">Piano (synthé)</option><option value="epiano">Piano électrique (synthé)</option><option value="sine">Sinus pur (synthé)</option></select></label>
         <label for="piano-volume">Volume du piano <output id="piano-value">75 %</output><input id="piano-volume" type="range" min="0" max="100" step="1" value="75"></label>
         <label for="click-volume">Volume du métronome <output id="click-value">35 %</output><input id="click-volume" type="range" min="0" max="100" step="1" value="35"></label></div>
       <div class="click-sound-row"><label for="click-sound">Son du clic<select id="click-sound"></select></label><button type="button" class="ctrl-btn white" id="preview-click" aria-label="Écouter le son du clic">Écouter</button></div>
       <p class="dim small click-help">Changez le son même pendant l’exercice. À l’arrêt, « Écouter » joue trois clics.</p>
-      <label class="display-option"><input id="show-note" type="checkbox" checked> Afficher le nom des notes</label>
+      <label class="display-option training-only"><input id="show-note" type="checkbox" checked> Afficher le nom des notes</label>
     </section>
 
     <details class="help"><summary>Comment travailler ?</summary><p>Choisissez le niveau, l’intervalle et le tempo, puis adaptez le registre à votre voix. Après quatre clics, écoutez la note du piano sur la première pulsation. Sur la suivante, chantez l’intervalle demandé à partir de cette note. Recommencez avec chaque nouvelle note.</p><p>Le niveau modifie l’écart entre deux notes de piano successives. L’intervalle à chanter reste fixe. Au niveau 3, un registre large donne davantage de variété.</p><p>« Joue-le pour moi » lance le modèle en continu : note de départ, puis réponse au piano sur le clic suivant. « À moi de chanter » revient à l’exercice. Chaque changement recommence avec quatre clics ; « Arrêter » termine la séance.</p><p>Le métronome continue pendant le chant. En mode chant, la réponse reste silencieuse. Votre voix n’est pas enregistrée. Les préférences sont conservées sur cet appareil lorsque le navigateur le permet.</p><p>Raccourcis hors des réglages : <kbd>Espace</kbd> démarrer / arrêter · <kbd>Échap</kbd> arrêter. Gardez cette page au premier plan pendant la séance.</p></details>
@@ -559,11 +573,15 @@ class SingingTestUI {
     this.pinball=window.PinballTop.mount(this.$('top-list'),{title:'TOP 10 · INTERVALLES'});
     this.$('last-result').addEventListener('click',()=>this.reveal());
     this.profileKey='asmm.singing.profile.v1';this.resultKey='asmm.singing.result.v1';this.version=0;this.publishing=false;
-    for(const [value,label] of core.INTERVALS){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
+    for(const [value,label] of core.INTERVALS.filter(([n])=>SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('test-interval').append(o);}
+    this.$('test-interval').value=2;
+    this.$('course-title').textContent=SingingChallenge.TITLE;
+    this.$('top-scope').addEventListener('change',()=>{this.populateTop();void this.refresh();});
+    for(const id of ['test-interval','test-direction'])this.$(id).addEventListener('change',()=>{this.select(this.selection());this.onChange?.();});
     for(const id of ['top-interval','top-direction'])this.$(id).addEventListener('change',()=>void this.refresh());
     this.$('top-refresh').addEventListener('click',()=>void this.refresh());
     this.$('test-save').addEventListener('click',()=>void this.save());
-    this.select(getConfig());
+    this.select(this.selection());
     const pending=this.read(this.resultKey);
     if(pending?.payload)try{this.show(pending.payload,SingingScore.restore(pending.payload),!!pending.saved);}catch{}
   }
@@ -574,16 +592,27 @@ class SingingTestUI {
     let body;try{body=await response.json();}catch{throw new Error('Le classement est temporairement indisponible.');}
     if(!response.ok)throw new Error(body.error||'Enregistrement impossible.');return body;
   }
-  select(cfg){this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}
+  selection(){return SingingChallenge.config(Number(this.$('test-interval').value),Number(this.$('test-direction').value));}
+  populateTop(){
+    const previous=Number(this.$('top-interval').value),archive=this.$('top-scope').value==='archive';
+    this.$('top-interval').replaceChildren();
+    for(const [value,label] of this.core.INTERVALS.filter(([n])=>archive||SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
+    this.$('top-interval').value=archive||SingingChallenge.INTERVALS.includes(previous)?previous:2;
+    if(!this.$('top-interval').value)this.$('top-interval').value=2;
+    this.$('test-top-title').textContent=archive?'Top 10 · Archives':'Top 10 · Défi du cours';
+  }
+  select(cfg){this.$('top-scope').value='course';this.populateTop();this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}
+  isCurrent(payload){try{SingingChallenge.validate(payload);return payload.ruleset===SingingScore.ID;}catch{return false;}}
   busy(value){this.$('test-start').disabled=value;this.$('last-result').disabled=value;if(value)this.$('test-result').hidden=true;}
   reveal(){if(!this.pending)return;this.$('test-result').hidden=false;this.$('test-result-title').focus({preventScroll:true});this.$('test-result').scrollIntoView?.({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
   async refresh() {
+    const archive=this.$('top-scope').value==='archive',challenge=archive?null:SingingChallenge.ID;
     const id=++this.version,interval=Number(this.$('top-interval').value),direction=Number(this.$('top-direction').value);
     this.$('top-status').textContent='Chargement du Top 10…';this.pinball.setMessage('CHARGEMENT','Le Top 10 arrive…');
     try {
-      const data=await this.request(`/api/singing/leaderboard?interval=${interval}&direction=${direction}`);
+      const data=await this.request(`/api/singing/leaderboard?interval=${interval}&direction=${direction}${challenge?'&challenge='+encodeURIComponent(challenge):''}`);
       if(id!==this.version)return;
-      if(data.ruleset!==SingingScore.ID||data.interval!==interval||data.direction!==direction||!Array.isArray(data.rows))throw new Error('Classement incompatible.');
+      if(data.ruleset!==SingingScore.ID||data.challenge!==challenge||data.interval!==interval||data.direction!==direction||!Array.isArray(data.rows))throw new Error('Classement incompatible.');
       this.$('top-status').textContent=`${data.participants} participant${data.participants>1?'s':''} · meilleur score par pseudo`;
       this.pinball.setRows(data.rows.map(row=>({name:row.name,score:row.score,
         detail:`${row.grade}/20 · ${row.questions||30} notes · ${row.config.tempo} bpm · écart ${row.meanCents===null?'—':row.meanCents+' cents'} · réponse ${row.averageSeconds===null?'—':row.averageSeconds+' s'}`})));
@@ -591,7 +620,7 @@ class SingingTestUI {
     }catch{if(id===this.version){this.$('top-status').textContent='Top en ligne indisponible. Les tests restent utilisables et les résultats sont conservés sur cet appareil.';this.pinball.setMessage('INDISPONIBLE','Actualise pour réessayer.');}}
   }
   show(payload,metrics,saved=false) {
-    const legacy=payload.ruleset!==SingingScore.ID;
+    const legacy=payload.ruleset!==SingingScore.ID,current=this.isCurrent(payload);
     this.pending={payload,saved};this.$('last-result').hidden=false;this.$('test-result').hidden=false;
     const label=this.core.INTERVALS.find(([n])=>n===payload.config.interval)[1];
     this.$('test-result-title').textContent=`${label} ${payload.config.direction===1?'↑':'↓'} · ${metrics.total} notes terminées`;
@@ -605,13 +634,13 @@ class SingingTestUI {
     metrics.results.forEach((n,i)=>{const li=document.createElement('li');li.textContent=`${i+1}. ${n.meanCents===null?'Non chantée / non détectée':`${Math.round(n.meanCents)} cents d’écart moyen${!legacy && !n.settled?' · note non stabilisée':''}`} · ${Math.round(n.quality*100)} %${n.seconds===null?'':` · ${n.seconds.toFixed(2)} s`}`;rows.append(li);});
     const profile=this.read(this.profileKey)||{};
     this.$('test-name').value=profile.name||payload.name||'';this.$('test-name').readOnly=!!profile.name;
-    this.$('test-save').disabled=saved||legacy;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
-    this.$('test-save-status').textContent=legacy?`Ancien test de ${metrics.total} notes conservé avec son barème d’origine. Lance un nouveau test pour profiter de la notation plus souple.`:saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
+    this.$('test-save').disabled=saved||!current;this.$('test-save').textContent=saved?'Score enregistré':'Enregistrer mon score en ligne';
+    this.$('test-save-status').textContent=legacy?`Ancien test de ${metrics.total} notes conservé avec son barème d’origine. Lance un nouveau test pour profiter de la notation plus souple.`:!current?'Ancien essai conservé. Pour participer au Top actuel, lance le Défi du cours avec ses réglages communs.':saved?'Ton meilleur résultat occupe une seule place dans ce Top.':'Résultat conservé sur cet appareil. Choisis un pseudo pour le partager.';
     try{this.write(this.resultKey,this.pending);}catch{this.$('test-save-status').textContent='Résultat disponible ici. Le stockage local est bloqué : garde cette page ouverte.';}
-    this.select(payload.config);
+    if(current)this.select(payload.config);
   }
   async save() {
-    if(this.publishing||!this.pending||this.pending.saved||this.pending.payload.ruleset!==SingingScore.ID)return;
+    if(this.publishing||!this.pending||this.pending.saved||!this.isCurrent(this.pending.payload))return;
     const pending=this.pending,profile=this.read(this.profileKey)||{};
     const name=(profile.name||this.$('test-name').value).normalize('NFKC').trim().replace(/\s+/g,' ');
     if([...name].length<2||[...name].length>16){this.$('test-save-status').textContent='Choisis un pseudo de 2 à 16 caractères.';return;}
@@ -624,7 +653,7 @@ class SingingTestUI {
       pending.saved=true;
       if(this.pending===pending){this.write(this.resultKey,pending);this.$('test-name').value=profile.name;this.$('test-name').readOnly=true;this.$('test-save').textContent='Score enregistré';this.$('test-save-status').textContent='Enregistré ! Seul ton meilleur score apparaît dans ce Top.';void this.refresh();}
     }catch(error){if(this.pending===pending)this.$('test-save-status').textContent=['TypeError','TimeoutError'].includes(error.name)?'Connexion indisponible. Le résultat est conservé ; clique de nouveau sur Enregistrer pour réessayer.':error.message;}
-    finally{this.publishing=false;this.$('test-save').disabled=!!this.pending?.saved;}
+    finally{this.publishing=false;this.$('test-save').disabled=!!this.pending?.saved||!this.isCurrent(this.pending?.payload);}
   }
 }
 
@@ -733,6 +762,44 @@ window.PinballTop = (() => {
 
 </script>
 <!-- END pinball-top -->
+<!-- BEGIN singing-challenge -->
+<script>
+/* Shared course assignment. Renew ID and settings only for a new assignment,
+   never for a calendar week, a visual update or an audio fix. */
+const SingingChallenge = (() => {
+  const ID='singing-course-001-seconds',TITLE='Secondes mineures et majeures';
+  const INTERVALS=Object.freeze([1,2]);
+  const SETTINGS=Object.freeze({tempo:80,difficulty:'close',low:60,high:72});
+  // The same route and gap bonus for everyone; free practice stays random.
+  const NOTES=Object.freeze([60,62,65,64,67,69,66,65,68,72,71,67,64,62,61,65,68,66,69,72,70,67,65,62,64,68,71,69,66,63]);
+  function config(interval=2,direction=1) {
+    if(!INTERVALS.includes(interval)||![1,-1].includes(direction))throw new Error('Ce défi porte sur les secondes mineures et majeures, dans les deux sens.');
+    return {...SETTINGS,interval,direction};
+  }
+  function isConfig(raw) {
+    return !!raw && INTERVALS.includes(raw.interval) && [1,-1].includes(raw.direction) &&
+      Object.entries(SETTINGS).every(([key,value])=>raw[key]===value);
+  }
+  function validate(payload) {
+    if(payload?.challenge!==ID)throw new Error('Lance le Défi du cours actuel pour participer au classement.');
+    if(!isConfig(payload.config))throw new Error('Le défi impose 80 BPM, les petits écarts et un piano de Do3 à Do4.');
+    if(!Array.isArray(payload.notes)||payload.notes.length!==NOTES.length||payload.notes.some((note,i)=>note?.midi!==NOTES[i]))throw new Error('Le défi doit suivre la même série de 30 notes pour tous.');
+    return config(payload.config.interval,payload.config.direction);
+  }
+  class Sequence {
+    constructor(){this.beat=0;}
+    next(){
+      const beat=this.beat++;
+      if(beat<4)return {phase:'count',count:beat+1,midi:null,pairs:0};
+      const index=Math.floor((beat-4)/2);
+      return {phase:(beat-4)%2===0?'piano':'sing',midi:NOTES[index]??NOTES[0],pairs:index+1};
+    }
+  }
+  return {ID,TITLE,INTERVALS,SETTINGS,NOTES,config,isConfig,validate,Sequence};
+})();
+
+</script>
+<!-- END singing-challenge -->
 <script>
 /* Optional microphone tuner. Audio stays in memory; no recording or network upload. */
 const SingingPitch = (() => {
@@ -975,13 +1042,13 @@ class SingingTuner {
   let running = false, preparing = false, token = 0, timer = null, raf = null, wakeLock = null;
   let sequence, clock, events = [], displayed = null, sampleWarning = '';
   let previewToken = 0;
-  let playMode = 'sing', testRun = null, testPreparing = false;
+  let playMode = 'sing', testRun = null, testPreparing = false, testBackup = null, courseMode = true;
   const testUI = new SingingTestUI(C, () => cfg);
   let keyboardBase = Math.max(24, Math.min(84, Math.floor(Math.min(cfg.low, cfg.low + cfg.interval * cfg.direction) / 12) * 12));
   let keyboardToken = 0, keyboardVoice = null, keyboardTimer = null, keyboardLastMidi = null;
   const tuner = new SingingTuner(audio, () => ({ cfg: testRun || testPreparing ? {...cfg, showNote:false} : cfg, running, playMode, displayed }));
   tuner.onSample = (event, cents, now) => testRun?.sample(event, cents, now);
-  const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(cfg)); } catch (_) {} };
+  const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(testBackup ? {...cfg,...testBackup} : cfg)); } catch (_) {} };
   function status(text, error = false) { $('status').textContent = text; $('status').classList.toggle('error', error); }
   function option(value, text) { const o = document.createElement('option'); o.value = value; o.textContent = text; return o; }
   function keyboardFeedback(text, error = false) {
@@ -1038,15 +1105,16 @@ class SingingTuner {
     renderTempo(); renderVolumes(); describe();
   }
   function describe() {
-    const label = C.INTERVALS.find(([n]) => n === cfg.interval)[1];
-    $('instruction').textContent = `${label} ${cfg.direction === 1 ? '↑' : '↓'}`;
-    $('direction-text').textContent = `${cfg.direction === 1 ? 'Au-dessus' : 'Au-dessous'} de chaque note jouée`;
+    const view = courseMode && !testRun && !testPreparing ? testUI.selection() : cfg;
+    const label = C.INTERVALS.find(([n]) => n === view.interval)[1];
+    $('instruction').textContent = `${label} ${view.direction === 1 ? '↑' : '↓'}`;
+    $('direction-text').textContent = `${view.direction === 1 ? 'Au-dessus' : 'Au-dessous'} de chaque note jouée`;
     $('difficulty-help').textContent = C.DIFFICULTIES[cfg.difficulty].detail;
     const shift = cfg.interval * cfg.direction;
     $('vocal-range').textContent = `Piano : ${C.name(cfg.low, true)} à ${C.name(cfg.high, true)}. Chantez la réponse à l’octave qui vous convient.`;
-    const err = C.validate(cfg);
+    const err = C.validate(view);
     $('start').disabled = !!err || preparing || !!testRun || testPreparing || (running && playMode === 'sing');
-    $('test-start').disabled = !!err || preparing || !!testRun || testPreparing;
+    $('test-start').disabled = preparing || !!testRun || testPreparing;
     $('play-model').disabled = !!err || preparing || !!testRun || testPreparing || (running && playMode === 'model');
     if (!running && !preparing) status(err, !!err);
   }
@@ -1055,7 +1123,7 @@ class SingingTuner {
     $('note-rate').textContent = `${(120 / cfg.tempo).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} s`;
   }
   function setTempo(value) {
-    if (testRun || testPreparing) return;
+    if (courseMode || testRun || testPreparing) return;
     if (!Number.isFinite(Number(value)) || value === '') { renderTempo(); return; }
     cfg.tempo = Math.max(30, Math.min(200, Math.round(Number(value))));
     if (clock) clock.tempo = cfg.tempo;
@@ -1067,6 +1135,8 @@ class SingingTuner {
     audio.volumes(cfg.pianoVolume, cfg.clickVolume);
   }
   function lockSettings(locked) {
+    $('course-choices').disabled = locked;
+    $('mode-challenge').disabled = locked; $('mode-training').disabled = locked;
     $('session-settings').disabled = locked; $('register-settings').disabled = locked; $('sound').disabled = locked;
     $('preview-click').disabled = locked;
     const testing = !!testRun || testPreparing;
@@ -1074,14 +1144,14 @@ class SingingTuner {
     $('show-note').checked = testing ? false : cfg.showNote;
     $('piano-keyboard').querySelectorAll('button').forEach(key => key.disabled = testing);
     if (!testing) { $('keyboard-lower').disabled = keyboardBase === 24; $('keyboard-higher').disabled = keyboardBase === 84; }
-    $('test-start').textContent = testing ? 'Test en cours' : '🏆 Lancer le test';
-    $('settings-hint').textContent = testing ? 'Test : réglages fixes, clavier et modèle bloqués. Octave libre.' : locked ? 'Arrêtez la séance pour changer le niveau, l’intervalle ou le registre. Le tempo et les volumes restent réglables.' : 'Choisissez un registre confortable pour la voix.';
+    $('test-start').textContent = testing ? 'Défi en cours' : '🏆 Lancer le défi';
+    $('settings-hint').textContent = testing ? 'Défi du cours : 80 BPM, niveau 1, piano Do3–Do4. Octave chantée libre.' : locked ? 'Arrêtez la séance pour changer le niveau, l’intervalle ou le registre. Le tempo et les volumes restent réglables.' : 'Choisissez un registre confortable pour la voix.';
   }
   function modeLabels() {
     const model = playMode === 'model';
     $('second-beat-title').textContent = model ? 'Le modèle' : 'À vous';
     $('second-beat-help').textContent = model ? 'Écoutez la réponse' : 'Chantez l’intervalle';
-    $('start').textContent = running ? (model ? '▶ À moi de chanter' : 'Séance en cours') : '▶ Démarrer';
+    $('start').textContent = courseMode ? (running ? 'Défi en cours' : '🏆 Lancer le défi') : running ? (model ? '▶ À moi de chanter' : 'Séance en cours') : '▶ Démarrer';
     $('play-model').textContent = running && model ? 'Modèle en cours' : '♫ Joue-le pour moi';
   }
   function visual(event) {
@@ -1133,10 +1203,17 @@ class SingingTuner {
       if (!running || token !== id) await lock.release(); else wakeLock = lock;
     } catch (_) { /* The exercise also works where screen wake lock is unavailable. */ }
   }
-  async function start(mode = 'sing') {
-    if (preparing || testRun || testPreparing || C.validate(cfg) || (running && playMode === mode)) return;
+  async function start(mode = courseMode ? 'test' : 'sing') {
     const testing = mode === 'test';
+    if (preparing || testRun || testPreparing || (!testing && (courseMode || C.validate(cfg))) || (running && playMode === mode)) return;
     if (running) stop(undefined, false, true);
+    if(testing){
+      const fixed=testUI.selection();
+      testBackup=Object.fromEntries(['interval','direction','tempo','difficulty','low','high','backend','showNote'].map(key=>[key,cfg[key]]));
+      cfg={...cfg,...fixed,backend:'samples'};
+      setMode(true);
+      renderConfig();
+    }
     testPreparing = testing; playMode = testing ? 'sing' : mode;
     if (testing) testUI.busy(true);
     previewToken++; clearKeyboard(); audio.stop();
@@ -1163,7 +1240,7 @@ class SingingTuner {
       }
       testPreparing = false; preparing = false; running = true; displayed = null; events = [];
       lockSettings(true);
-      sequence = new C.Sequence(cfg); clock = new C.BeatClock(testRun?.startAt ?? audio.ctx.currentTime + 0.15, cfg.tempo);
+      sequence = testing ? new SingingChallenge.Sequence() : new C.Sequence(cfg); clock = new C.BeatClock(testRun?.startAt ?? audio.ctx.currentTime + 0.15, cfg.tempo);
       $('counter').textContent = '0 note de départ'; modeLabels(); describe();
       status(sampleWarning || (playMode === 'model' ? 'Le piano joue la note de départ, puis la réponse sur le clic suivant.' : 'Écoutez, puis chantez sur la pulsation suivante.'));
       timer = setInterval(schedule, 25); schedule(); raf = requestAnimationFrame(animate); keepAwake(id);
@@ -1173,7 +1250,7 @@ class SingingTuner {
     const run = testRun;
     try {
       const result = run.result();
-      const payload = {id:run.id,ruleset:SingingScore.ID,config:run.cfg,notes:run.notes,duration:run.endAt-run.startAt};
+      const payload = {id:run.id,ruleset:SingingScore.ID,challenge:SingingChallenge.ID,config:run.cfg,notes:run.notes,duration:run.endAt-run.startAt};
       testRun = null; stop('Test terminé : les 30 notes ont été évaluées.');
       $('test-progress').textContent = '30 / 30 · test terminé';
       testUI.show(payload,result);
@@ -1194,6 +1271,7 @@ class SingingTuner {
     $('current-note').classList.remove('singing'); $('current-note').textContent = '—';
     $('phase-label').textContent = 'Décompte de 4 pulsations au démarrage'; $('note-detail').textContent = 'Puis piano / chant, en continu.';
     $('run-state').textContent = 'À L’ARRÊT'; $('start').textContent = '▶ Démarrer'; $('stop').disabled = true;
+    if(testBackup){cfg={...cfg,...testBackup};testBackup=null;renderConfig();save();}
     lockSettings(false); modeLabels(); describe(); status(message, error);
   }
   async function previewClick() {
@@ -1210,10 +1288,10 @@ class SingingTuner {
     } catch (err) { if (id === previewToken) status(err.message || 'Impossible de jouer le clic.', true); }
   }
   for (const id of ['interval', 'low', 'high', 'difficulty']) $(id).addEventListener('change', () => {
-    if (running || preparing || testRun || testPreparing) return;
-    cfg[id] = id === 'difficulty' ? $(id).value : Number($(id).value); save(); describe(); testUI.select(cfg);
+    if (courseMode || running || preparing || testRun || testPreparing) return;
+    cfg[id] = id === 'difficulty' ? $(id).value : Number($(id).value); save(); describe();
   });
-  document.querySelectorAll('[name=direction]').forEach(el => el.addEventListener('change', () => { if (running || preparing) return; cfg.direction = Number(el.value); save(); describe(); testUI.select(cfg); }));
+  document.querySelectorAll('[name=direction]').forEach(el => el.addEventListener('change', () => { if (courseMode || running || preparing) return; cfg.direction = Number(el.value); save(); describe(); }));
   $('tempo').addEventListener('input', e => setTempo(e.target.value));
   $('tempo-number').addEventListener('change', e => setTempo(e.target.value));
   $('tempo-less').addEventListener('click', () => setTempo(cfg.tempo - 5));
@@ -1232,8 +1310,21 @@ class SingingTuner {
   });
   $('keyboard-lower').addEventListener('click', () => { keyboardBase = Math.max(24, keyboardBase - 12); renderKeyboard(); });
   $('keyboard-higher').addEventListener('click', () => { keyboardBase = Math.min(84, keyboardBase + 12); renderKeyboard(); });
+  function setMode(course) {
+    if(running || preparing || testRun || testPreparing)return;
+    courseMode=course;
+    document.querySelectorAll('.training-only').forEach(el=>el.hidden=course);
+    document.querySelector('.test-launch').hidden=!course;
+    document.querySelector('.transport').classList.toggle('course-transport',course);
+    $('mode-challenge').setAttribute('aria-pressed',String(course));
+    $('mode-training').setAttribute('aria-pressed',String(!course));
+    modeLabels();describe();
+  }
+  $('mode-challenge').addEventListener('click',()=>setMode(true));
+  $('mode-training').addEventListener('click',()=>setMode(false));
+  testUI.onChange=()=>describe();
   $('test-start').addEventListener('click', () => start('test'));
-  $('start').addEventListener('click', () => start('sing'));
+  $('start').addEventListener('click', () => start());
   $('play-model').addEventListener('click', () => start('model'));
   $('stop').addEventListener('click', () => stop());
   document.addEventListener('keydown', e => {
@@ -1252,6 +1343,7 @@ class SingingTuner {
   });
   window.addEventListener('pagehide', () => { if (running || preparing) stop(); else { previewToken++; clearKeyboard(); audio.stop(); tuner.disable(); } });
   renderConfig(); renderKeyboard(); save();
+  setMode(true);
 })();
 </script>
 </body>
