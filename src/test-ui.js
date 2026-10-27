@@ -6,7 +6,7 @@ class SingingTestUI {
     this.$('last-result').addEventListener('click',()=>this.reveal());
     this.profileKey='asmm.singing.profile.v1';this.resultKey='asmm.singing.result.v1';this.version=0;this.publishing=false;
     for(const [value,label] of core.INTERVALS.filter(([n])=>SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('test-interval').append(o);}
-    this.$('test-interval').value=2;
+    this.$('test-interval').value=SingingChallenge.INTERVALS[0];
     this.$('course-title').textContent=SingingChallenge.TITLE;
     this.$('top-scope').addEventListener('change',()=>{this.populateTop();void this.refresh();});
     for(const id of ['test-interval','test-direction'])this.$(id).addEventListener('change',()=>{this.select(this.selection());this.onChange?.();});
@@ -29,8 +29,8 @@ class SingingTestUI {
     const previous=Number(this.$('top-interval').value),archive=this.$('top-scope').value==='archive';
     this.$('top-interval').replaceChildren();
     for(const [value,label] of this.core.INTERVALS.filter(([n])=>archive||SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
-    this.$('top-interval').value=archive||SingingChallenge.INTERVALS.includes(previous)?previous:2;
-    if(!this.$('top-interval').value)this.$('top-interval').value=2;
+    this.$('top-interval').value=archive||SingingChallenge.INTERVALS.includes(previous)?previous:SingingChallenge.INTERVALS[0];
+    if(!this.$('top-interval').value)this.$('top-interval').value=SingingChallenge.INTERVALS[0];
     this.$('test-top-title').textContent=archive?'Top 10 · Archives':'Top 10 · Défi du cours';
   }
   select(cfg){this.$('top-scope').value='course';this.populateTop();this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}

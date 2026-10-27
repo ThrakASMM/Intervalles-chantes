@@ -114,7 +114,7 @@
     </section>
       </div>
     <section class="card test-launch" aria-labelledby="test-title">
-      <div class="test-launch-heading"><div><h2 id="test-title">Défi du cours</h2><p class="small dim" id="course-title">Secondes mineures et majeures</p></div></div>
+      <div class="test-launch-heading"><div><h2 id="test-title">Défi du cours</h2><p class="small dim" id="course-title">Tierce majeure</p></div></div>
       <p class="small">Un cadre commun pour toute la classe. Choisissez seulement l’intervalle et le sens à travailler.</p>
       <fieldset class="session-settings course-choices" id="course-choices"><legend class="sr-only">Choix du défi</legend><label for="test-interval">Intervalle du défi<select id="test-interval"></select></label><label for="test-direction">Sens du défi<select id="test-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></fieldset>
       <dl class="course-rules"><div><dt>30 notes · 80 BPM</dt><dd>La même série pour tout le monde.</dd></div><div><dt>Amplitude imposée · niveau 1</dt><dd>Petits écarts de 1 à 4 demi-tons entre les notes de départ.</dd></div><div><dt>Registre du piano imposé</dt><dd>De Do3 à Do4, sur une octave.</dd></div></dl>
@@ -125,7 +125,7 @@
       <details><summary>Comment est calculé le score ?</summary><p>La justesse rapporte jusqu’à 10 000 points. Le test retient une courte portion stable de votre note : une attaque hésitante ne pénalise pas la justesse si la note est ensuite bien posée. La tolérance est de ±45 cents, soit un peu moins d’un demi-ton, pour tous les intervalles. Les écarts plus importants réduisent progressivement les points ; une note non détectée rapporte zéro.</p><p>Bonus de rapidité : jusqu’à 2 000 points selon le temps entre le piano et une réponse juste stabilisée. Bonus d’écarts : jusqu’à 1 000 points selon les sauts entre les notes de départ. Ces bonus sont pondérés par la justesse. Comme l’octave est libre, un saut d’octave seul ne donne pas de bonus.</p><p>Micro indispensable, casque conseillé. Pendant le test, le modèle et le clavier sont bloqués. Les réglages restent fixes. Les voyants vous aident à corriger votre voix.</p></details>
     </section>
       </div>
-      <aside class="test-top" id="test-top" aria-labelledby="test-top-title"><header class="test-top-heading"><span class="test-top-icon" aria-hidden="true">🏆</span><div><p class="test-top-eyebrow">LES SCORES</p><h2 id="test-top-title">Top 10 · Défi du cours</h2></div><button type="button" class="test-top-refresh" id="top-refresh" aria-label="Actualiser le classement" title="Actualiser le classement">↻</button></header><label class="top-scope" for="top-scope">Classement<select id="top-scope"><option value="course">Défi du cours · Secondes</option><option value="archive">Archives · Anciens tests</option></select></label><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Une place par pseudo et par Top. Les anciens essais aux réglages libres sont conservés dans les archives.</p></aside>
+      <aside class="test-top" id="test-top" aria-labelledby="test-top-title"><header class="test-top-heading"><span class="test-top-icon" aria-hidden="true">🏆</span><div><p class="test-top-eyebrow">LES SCORES</p><h2 id="test-top-title">Top 10 · Défi du cours</h2></div><button type="button" class="test-top-refresh" id="top-refresh" aria-label="Actualiser le classement" title="Actualiser le classement">↻</button></header><label class="top-scope" for="top-scope">Classement<select id="top-scope"><option value="course">Défi du cours · Tierce majeure</option><option value="archive">Archives · Anciens tests</option></select></label><div class="test-top-filters"><label for="top-interval">Intervalle<select id="top-interval"></select></label><label for="top-direction">Sens<select id="top-direction"><option value="1">↑ Ascendant</option><option value="-1">↓ Descendant</option></select></label></div><p class="small dim" id="top-status" role="status"></p><div id="top-list"></div><p class="test-save-note">Une place par pseudo et par Top. Les défis précédents et les anciens essais sont conservés dans les archives.</p></aside>
     </div>
     <section class="exercise" aria-label="Exercice au métronome">
       <div class="exercise-top"><span class="badge" id="run-state">PRÊT À JOUER</span><span class="counter" id="counter">0 note de départ</span></div>
@@ -574,7 +574,7 @@ class SingingTestUI {
     this.$('last-result').addEventListener('click',()=>this.reveal());
     this.profileKey='asmm.singing.profile.v1';this.resultKey='asmm.singing.result.v1';this.version=0;this.publishing=false;
     for(const [value,label] of core.INTERVALS.filter(([n])=>SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('test-interval').append(o);}
-    this.$('test-interval').value=2;
+    this.$('test-interval').value=SingingChallenge.INTERVALS[0];
     this.$('course-title').textContent=SingingChallenge.TITLE;
     this.$('top-scope').addEventListener('change',()=>{this.populateTop();void this.refresh();});
     for(const id of ['test-interval','test-direction'])this.$(id).addEventListener('change',()=>{this.select(this.selection());this.onChange?.();});
@@ -597,8 +597,8 @@ class SingingTestUI {
     const previous=Number(this.$('top-interval').value),archive=this.$('top-scope').value==='archive';
     this.$('top-interval').replaceChildren();
     for(const [value,label] of this.core.INTERVALS.filter(([n])=>archive||SingingChallenge.INTERVALS.includes(n))){const o=document.createElement('option');o.value=value;o.textContent=label;this.$('top-interval').append(o);}
-    this.$('top-interval').value=archive||SingingChallenge.INTERVALS.includes(previous)?previous:2;
-    if(!this.$('top-interval').value)this.$('top-interval').value=2;
+    this.$('top-interval').value=archive||SingingChallenge.INTERVALS.includes(previous)?previous:SingingChallenge.INTERVALS[0];
+    if(!this.$('top-interval').value)this.$('top-interval').value=SingingChallenge.INTERVALS[0];
     this.$('test-top-title').textContent=archive?'Top 10 · Archives':'Top 10 · Défi du cours';
   }
   select(cfg){this.$('top-scope').value='course';this.populateTop();this.$('top-interval').value=cfg.interval;this.$('top-direction').value=cfg.direction;void this.refresh();}
@@ -767,13 +767,13 @@ window.PinballTop = (() => {
 /* Shared course assignment. Renew ID and settings only for a new assignment,
    never for a calendar week, a visual update or an audio fix. */
 const SingingChallenge = (() => {
-  const ID='singing-course-001-seconds',TITLE='Secondes mineures et majeures';
-  const INTERVALS=Object.freeze([1,2]);
+  const ID='singing-course-002-major-third',TITLE='Tierce majeure';
+  const INTERVALS=Object.freeze([4]);
   const SETTINGS=Object.freeze({tempo:80,difficulty:'close',low:60,high:72});
   // The same route and gap bonus for everyone; free practice stays random.
   const NOTES=Object.freeze([60,62,65,64,67,69,66,65,68,72,71,67,64,62,61,65,68,66,69,72,70,67,65,62,64,68,71,69,66,63]);
-  function config(interval=2,direction=1) {
-    if(!INTERVALS.includes(interval)||![1,-1].includes(direction))throw new Error('Ce défi porte sur les secondes mineures et majeures, dans les deux sens.');
+  function config(interval=4,direction=1) {
+    if(!INTERVALS.includes(interval)||![1,-1].includes(direction))throw new Error('Ce défi porte sur les tierces majeures, dans les deux sens.');
     return {...SETTINGS,interval,direction};
   }
   function isConfig(raw) {

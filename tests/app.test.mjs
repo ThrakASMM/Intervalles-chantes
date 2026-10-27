@@ -82,13 +82,13 @@ test('personal settings never change the shared challenge, and are restored afte
    h.$('low').value=48;h.$('low').dispatchEvent(new h.w.Event('change'));
    h.$('mode-challenge').click();assert.equal(h.$('training-settings').hidden,true);
    h.$('test-direction').value=-1;h.$('test-direction').dispatchEvent(new h.w.Event('change'));
-   h.$('test-interval').value=1;h.$('test-interval').dispatchEvent(new h.w.Event('change'));
+   h.$('test-interval').value=4;h.$('test-interval').dispatchEvent(new h.w.Event('change'));
    h.$('test-start').click();await flush();assert(h.$('course-choices').disabled);assert(h.$('mode-training').disabled);
    h.$('mode-training').dispatchEvent(new h.w.Event('click'));assert.equal(h.$('training-settings').hidden,true);
    await h.advance(48.3);assert.equal(h.played.length,30);assert.equal(h.clicks.length,64);assert.equal(h.$('test-grade').textContent,'20/20');
    const payload=JSON.parse(h.w.localStorage.getItem('asmm.singing.result.v1')).payload;
-   assert.equal(payload.challenge,'singing-course-001-seconds');
-   assert.deepEqual(payload.config,{interval:1,direction:-1,tempo:80,difficulty:'close',low:60,high:72});
+   assert.equal(payload.challenge,'singing-course-002-major-third');
+   assert.deepEqual(payload.config,{interval:4,direction:-1,tempo:80,difficulty:'close',low:60,high:72});
    assert.deepEqual(payload.notes.map(n=>n.midi),[60,62,65,64,67,69,66,65,68,72,71,67,64,62,61,65,68,66,69,72,70,67,65,62,64,68,71,69,66,63]);
    h.$('mode-training').click();assert.equal(h.$('tempo-number').value,String(tempo));assert.equal(h.$('interval').value,'7');assert.equal(h.$('low').value,'48');assert.equal(h.$('difficulty').value,'free');
    const saved=JSON.parse(h.w.localStorage.getItem('asmm.intervalles-chantes.v1'));assert.equal(saved.tempo,tempo);assert.equal(saved.interval,7);
@@ -119,14 +119,14 @@ test('old 30-note results retain their score and explain the new scoring before 
 
 test('course selectors, archives and free practice have distinct scopes',async()=>{
  const h=await harness();try{
-  assert.deepEqual([...h.$('test-interval').options].map(o=>o.value),['1','2']);
-  assert.deepEqual([...h.$('top-interval').options].map(o=>o.value),['1','2']);
+  assert.deepEqual([...h.$('test-interval').options].map(o=>o.value),['4']);
+  assert.deepEqual([...h.$('top-interval').options].map(o=>o.value),['4']);
   assert.equal(h.$('training-settings').hidden,true);assert.equal(h.$('play-model').hidden,true);
-  h.$('test-interval').value=1;h.$('test-interval').dispatchEvent(new h.w.Event('change'));await flush();
-  assert.equal(h.$('top-interval').value,'1');assert.match(h.requests.at(-1).url,/challenge=singing-course-001-seconds/);
+  h.$('test-interval').value=4;h.$('test-interval').dispatchEvent(new h.w.Event('change'));await flush();
+  assert.equal(h.$('top-interval').value,'4');assert.match(h.requests.at(-1).url,/challenge=singing-course-002-major-third/);
   h.$('top-scope').value='archive';h.$('top-scope').dispatchEvent(new h.w.Event('change'));await flush();
   assert.equal(h.$('top-interval').options.length,12);assert(!h.requests.at(-1).url.includes('challenge='));
-  assert.equal(h.$('test-interval').value,'1');
+  assert.equal(h.$('test-interval').value,'4');
   h.$('mode-training').click();assert.equal(h.$('play-model').hidden,false);assert.equal(h.$('interval').options.length,12);
   h.$('start').click();await flush();await h.advance(5);assert.equal(h.app.getRun(),null);assert(h.played.length>0);h.$('stop').click();
   assert.equal(h.w.localStorage.getItem('asmm.singing.result.v1'),null);

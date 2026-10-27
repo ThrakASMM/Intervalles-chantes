@@ -1,13 +1,13 @@
 /* Shared course assignment. Renew ID and settings only for a new assignment,
    never for a calendar week, a visual update or an audio fix. */
 const SingingChallenge = (() => {
-  const ID='singing-course-001-seconds',TITLE='Secondes mineures et majeures';
-  const INTERVALS=Object.freeze([1,2]);
+  const ID='singing-course-002-major-third',TITLE='Tierce majeure';
+  const INTERVALS=Object.freeze([4]);
   const SETTINGS=Object.freeze({tempo:80,difficulty:'close',low:60,high:72});
   // The same route and gap bonus for everyone; free practice stays random.
   const NOTES=Object.freeze([60,62,65,64,67,69,66,65,68,72,71,67,64,62,61,65,68,66,69,72,70,67,65,62,64,68,71,69,66,63]);
-  function config(interval=2,direction=1) {
-    if(!INTERVALS.includes(interval)||![1,-1].includes(direction))throw new Error('Ce défi porte sur les secondes mineures et majeures, dans les deux sens.');
+  function config(interval=4,direction=1) {
+    if(!INTERVALS.includes(interval)||![1,-1].includes(direction))throw new Error('Ce défi porte sur les tierces majeures, dans les deux sens.');
     return {...SETTINGS,interval,direction};
   }
   function isConfig(raw) {
